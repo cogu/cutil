@@ -74,7 +74,7 @@ _PACK_BASE_TYPE unpackBE(const _UINT8* p, _UINT8 u8Size)
    if ((u8Size > 0) && (u8Size <= sizeof(_PACK_BASE_TYPE)))
    {
 #if defined(PLATFORM_BYTE_ORDER) && (PLATFORM_BYTE_ORDER==PLATFORM_BIG_ENDIAN)
-      _PACK_BASE_TYPE value;
+      _PACK_BASE_TYPE value = 0u;
       memcpy(&value, p, u8Size);
       return value;
 #else
@@ -96,7 +96,7 @@ _PACK_BASE_TYPE unpackLE(const _UINT8* p, _UINT8 u8Size)
    if ((u8Size > 0) && (u8Size <= sizeof(_PACK_BASE_TYPE)))
    {
 #if defined(PLATFORM_BYTE_ORDER) && (PLATFORM_BYTE_ORDER==PLATFORM_LITTLE_ENDIAN)
-      _PACK_BASE_TYPE value;
+      _PACK_BASE_TYPE value = 0u;
       memcpy(&value, p, u8Size);
       return value;
 #else
