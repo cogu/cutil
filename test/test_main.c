@@ -8,6 +8,7 @@
 
 CuSuite* testsuite_pack(void);
 CuSuite* testsuite_soa_fsa(void);
+CuSuite* testsuite_sha256(void);
 
 void RunAllTests(void)
 {
@@ -16,6 +17,7 @@ void RunAllTests(void)
 
    CuSuiteAddSuite(suite, testsuite_pack());
    CuSuiteAddSuite(suite, testsuite_soa_fsa());
+   CuSuiteAddSuite(suite, testsuite_sha256());
 
    CuSuiteRun(suite);
    CuSuiteSummary(suite, output);
