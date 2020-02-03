@@ -107,7 +107,7 @@ static void test_fill_one_chunk(CuTest* tc)
 {
    soa_fsa_t fsa1;
    soa_fsa_init(&fsa1, sizeof(uint8_t), SOA_DEFAULT_NUM_BLOCKS);
-   int32_t i;
+   uint32_t i;
    void *ptr;
 
    void *allocated[SOA_DEFAULT_NUM_BLOCKS];
@@ -134,7 +134,7 @@ static void test_fill_one_chunk(CuTest* tc)
 static void test_create_two_chunks(CuTest* tc)
 {
    soa_fsa_t fsa1;
-   int32_t i;
+   uint32_t i;
    soa_chunk_t *chunk;
    void *ptr;
 
