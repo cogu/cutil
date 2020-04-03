@@ -23,6 +23,8 @@ A file stream reader inspired by stream reading mechanism in Node.js.
 
 Platform-independent (byte) serialization and deserialization routines for integers.
 
+There is an option to build platform-dependent versions which can yield faster runtimes.
+
 ### sha256 (Third Party)
 
 SHA-256 calculation routine. I have adapted the unit tests for CuTest.
@@ -72,3 +74,26 @@ $ cmake -DCMAKE_BUILD_TYPE=UnitTest ..
 $ cmake --build .
 $ ./cutil_unit
 ```
+### CMake Options
+
+#### Generic Options
+
+| CMake Option      | Usage            | Description                             |
+|-------------------|------------------|-----------------------------------------|
+| LEAK_CHECK        | -DLEAK_CHECK=ON  | Enables memory leak check detection     |
+| UNIT_TEST         | -DUNIT_TEST=ON   | Activates UNIT_TEST preprocessor define |
+
+Setting CMAKE_BUILD_BUILD_TYPE to *UnitTest* automatically activates both LEAK_CHECK and UNIT_TEST.
+
+#### Pack Options
+
+| CMake Option | Usage                               | Description                      |
+|--------------|-------------------------------------|----------------------------------|
+| BYTE_ORDER   | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order     |
+
+If the platform byte order is known during compile time we can switch some of the pack
+routines into simple memcpy calls which can be much faster.
+By default, CMake tries to automatically detect the byte order (AUTO) but you can force this value
+(to LITTE or BIG) in case that doesn't work.
+
+When BYTE_ORDER is NONE the pack routines work on any platform (safe but slow).
