@@ -1,7 +1,29 @@
 cmake_minimum_required(VERSION 3.14)
 
-include(cmake/BuildTypes.cmake)
-include(cmake/LeakCheck.cmake)
+project(cutil LANGUAGES C VERSION 1.0)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(../adt/cmake/BuildTypes.cmake)
+    include(../adt/cmake/LeakCheck.cmake)
+    include(../adt/cmake/UnitTest.cmake)
+endif()
+
+set(BYTE_ORDER AUTO CACHE STRING "Select byte order")
+set_property(CACHE BYTE_ORDER PROPERTY STRINGS NONE AUTO LITTLE BIG)
+
+if(BYTE_ORDER STREQUAL "LITTLE")
+    set(BYTE_ORDER_VALUE 0)
+elseif(BYTE_ORDER STREQUAL "BIG")
+    set(BYTE_ORDER_VALUE 1)
+elseif(BYTE_ORDER STREQUAL "AUTO")
+    include(TestBigEndian)
+    TEST_BIG_ENDIAN(BYTE_ORDER_VALUE)
+    message(STATUS "BYTE_ORDER_VALUE=${BYTE_ORDER_VALUE}")
+endif()
+
+if (UNIT_TEST)
+    message(STATUS "UNIT_TEST=${UNIT_TEST} (CUTIL)")
+endif()
 
 if (LEAK_CHECK)
     message(STATUS "LEAK_CHECK=${LEAK_CHECK} (CUTIL)")
@@ -43,7 +65,14 @@ endif()
 add_library(cutil ${CUTIL_SOURCE_LIST} ${CUTIL_HEADER_LIST})
 target_link_libraries(cutil PRIVATE adt)
 target_include_directories(cutil PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc)
-target_compile_definitions(cutil PRIVATE UNIT_TEST)
+if(DEFINED BYTE_ORDER_VALUE)
+    target_compile_definitions(cutil PUBLIC PLATFORM_BYTE_ORDER=${BYTE_ORDER_VALUE})
+endif()
+
+if (UNIT_TEST)
+    target_compile_definitions(cutil PRIVATE UNIT_TEST)
+endif()
+
 if (LEAK_CHECK)
     target_compile_definitions(cutil PRIVATE MEM_LEAK_CHECK)
 endif()
@@ -51,7 +80,7 @@ endif()
 ###
 
 ### Executable cutil_unit
-project(cutil_unit LANGUAGES C VERSION 1.0)
+
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     add_subdirectory(../adt ${CMAKE_CURRENT_BINARY_DIR}/adt)
