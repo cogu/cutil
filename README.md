@@ -1,4 +1,5 @@
 # cutil
+
 Utilities for C-based projects.
 
 ## What is it?
@@ -53,11 +54,11 @@ The unit test project(s) assumes that the repos are cloned (separately) into a c
 ### Git Example
 
 ```bash
-$ cd ~
-$ mkdir repo && cd repo
-$ git clone https://github.com/cogu/adt.git
-$ git clone https://github.com/cogu/cutil.git
-$ cd cutil
+cd ~
+mkdir repo && cd repo
+git clone https://github.com/cogu/adt.git
+git clone https://github.com/cogu/cutil.git
+cd cutil
 ```
 
 ## Building with CMake
@@ -67,10 +68,10 @@ First clone this repo and its dependencies into a common directory (such as ~/re
 ### Running unit tests (Linux and GCC)
 
 ```bash
-$ mkdir UnitTest && cd UnitTest
-$ cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
-$ cmake --build .
-$ ./cutil_unit
+mkdir UnitTest && cd UnitTest
+cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
+cmake --build .
+./cutil_unit
 ```
 
 ### Running unit tests (Windows and Visual Studio)
@@ -80,10 +81,10 @@ For example, I use "x64 Native Tools Command Prompt for VS2019" which is found o
 It conveniently comes with CMake pre-installed which generates Visual Studio projects by default.
 
 ```cmd
-$ mkdir UnitTest && cd UnitTest
-$ cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
-$ cmake --build . --config Debug
-$ Debug\cutil_unit.exe
+mkdir UnitTest && cd UnitTest
+cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
+cmake --build . --config Debug
+Debug\cutil_unit.exe
 ```
 
 ### CMake Options
@@ -94,8 +95,6 @@ $ Debug\cutil_unit.exe
 |-------------------|------------------|-----------------------------------------|
 | LEAK_CHECK        | -DLEAK_CHECK=ON  | Enables memory leak check detection     |
 | UNIT_TEST         | -DUNIT_TEST=ON   | Activates UNIT_TEST preprocessor define |
-
-Setting CMAKE_BUILD_BUILD_TYPE to *UnitTest* automatically activates both LEAK_CHECK and UNIT_TEST.
 
 #### Pack Options
 
