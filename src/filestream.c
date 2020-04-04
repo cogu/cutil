@@ -156,7 +156,7 @@ int ifstream_readTextFileFromHandle(ifstream_t *self, FILE *fh)
             if(len+chunkLen < IFSTREAM_BLOCK_SIZE)
             {
                memcpy(&chunk[chunkLen],buf,len);
-               chunkLen += len;
+               chunkLen += (uint32_t) len;
             }
             else
             {
@@ -165,7 +165,7 @@ int ifstream_readTextFileFromHandle(ifstream_t *self, FILE *fh)
                   self->handler.write(self->handler.arg,(uint8_t*)chunk,chunkLen);
                }
                memcpy(&chunk[0],buf,len);
-               chunkLen = len;
+               chunkLen = (uint32_t) len;
             }
          }
          if( (chunkLen > 0) && (self->handler.write != 0))
