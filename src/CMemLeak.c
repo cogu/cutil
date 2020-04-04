@@ -454,10 +454,11 @@ void  XWBReportFinal (void)
 char* XWBStrDup (const char* iOrig, const char* iFile, const unsigned int iLine)
 {
     char* result;
-    result = XWBMalloc (strlen (iOrig) + 1, iFile, iLine);
+    result = XWBMalloc ( ((unsigned int) strlen (iOrig)) + 1u, iFile, iLine);
     strcpy (result, iOrig);
     return result;
 }
+
 /*******************************************************************************
 * Allocate a number of items of a specified size
 *******************************************************************************/

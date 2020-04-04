@@ -149,7 +149,7 @@ static void test_create_two_chunks(CuTest* tc)
       CuAssertPtrNotNull(tc, ptr);
       allocated[i]=ptr;
    }
-   CuAssertIntEquals(tc, 2, fsa1.chunks_len);
+   CuAssertIntEquals(tc, 2, (int) fsa1.chunks_len);
    chunk = &fsa1.chunks[0];
    for(i=0; i<SOA_DEFAULT_NUM_BLOCKS; i++)
    {
@@ -174,8 +174,8 @@ static void test_free_3_at_beginning_then_allocate_5_more(CuTest* tc)
       CuAssertPtrNotNull(tc, ptr);
       allocated1[i]=ptr;
    }
-   CuAssertIntEquals(tc, 1, fsa1.chunks_len);
-   CuAssertIntEquals(tc, 1, fsa1.chunks[0].freeBlocks);
+   CuAssertIntEquals(tc, 1, (int) fsa1.chunks_len);
+   CuAssertIntEquals(tc, 1, (int) fsa1.chunks[0].freeBlocks);
    //free 3 then allocate 5 more
    for(i=0; i < 3; i++)
    {
@@ -187,7 +187,7 @@ static void test_free_3_at_beginning_then_allocate_5_more(CuTest* tc)
       CuAssertPtrNotNull(tc, ptr);
       allocated2[i]=ptr;
    }
-   CuAssertIntEquals(tc, 2, fsa1.chunks_len);
+   CuAssertIntEquals(tc, 2, (int) fsa1.chunks_len);
    CuAssertPtrEquals(tc, &fsa1.chunks[1].blockData[0], allocated2[4]);
 
    soa_fsa_destroy(&fsa1);

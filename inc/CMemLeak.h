@@ -54,8 +54,8 @@ extern void  XWBPreallocate (const int iInitialAllocations);
 
 #ifdef MEM_LEAK_CHECK
 void vfree(void*);
-#define malloc(x) XWBMalloc((x), __FILE__, __LINE__)
-#define realloc(x,size) XWBRealloc(x,(size),__FILE__,__LINE__)
+#define malloc(x) XWBMalloc((unsigned int) (x), __FILE__, __LINE__)
+#define realloc(x,size) XWBRealloc( (x), (unsigned int) (size),__FILE__,__LINE__)
 #define free(x)   XWBFree(x, #x, __FILE__, __LINE__)
 #ifdef _MSC_VER
 #define _strdup(x) XWBStrDup(x, __FILE__, __LINE__)

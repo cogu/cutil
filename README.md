@@ -50,7 +50,7 @@ The unit test project(s) assumes that the repos are cloned (separately) into a c
 * adt
 * cutil (this repo)
 
-### Example
+### Git Example
 
 ```bash
 $ cd ~
@@ -62,18 +62,30 @@ $ cd cutil
 
 ## Building with CMake
 
-CMake files exist but has so far only been tested on Linux.
-
 First clone this repo and its dependencies into a common directory (such as ~/repo) as seen above. Alternatively the repos can be submodules of a top-level repo (as seen in [cogu/c-apx](https://github.com/cogu/c-apx)).
 
-### Running unit tests (Linux)
+### Running unit tests (Linux and GCC)
 
 ```bash
 $ mkdir UnitTest && cd UnitTest
-$ cmake -DCMAKE_BUILD_TYPE=UnitTest ..
+$ cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
 $ cmake --build .
 $ ./cutil_unit
 ```
+
+### Running unit tests (Windows and Visual Studio)
+
+Use a command prompt provided by your Visual Studio installation.
+For example, I use "x64 Native Tools Command Prompt for VS2019" which is found on the start menu.
+It conveniently comes with CMake pre-installed which generates Visual Studio projects by default.
+
+```cmd
+$ mkdir UnitTest && cd UnitTest
+$ cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
+$ cmake --build . --config Debug
+$ Debug\cutil_unit.exe
+```
+
 ### CMake Options
 
 #### Generic Options
@@ -87,13 +99,13 @@ Setting CMAKE_BUILD_BUILD_TYPE to *UnitTest* automatically activates both LEAK_C
 
 #### Pack Options
 
-| CMake Option | Usage                               | Description                      |
-|--------------|-------------------------------------|----------------------------------|
-| BYTE_ORDER   | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order     |
+| CMake Option | Usage                                  | Description                      |
+|--------------|----------------------------------------|----------------------------------|
+| BYTE_ORDER   | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order              |
 
 If the platform byte order is known during compile time we can switch some of the pack
 routines into simple memcpy calls which can be much faster.
 By default, CMake tries to automatically detect the byte order (AUTO) but you can force this value
 (to LITTE or BIG) in case that doesn't work.
 
-When BYTE_ORDER is NONE the pack routines work on any platform (safe but slow).
+When BYTE_ORDER is NONE the pack routines compiles in a form that should work for any platform (safe but slow).

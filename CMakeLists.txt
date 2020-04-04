@@ -36,6 +36,10 @@ target_include_directories(cutest PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/cutest
 )
 
+if(MSVC)
+    target_compile_definitions(cutest PUBLIC _CRT_SECURE_NO_WARNINGS)
+endif()
+
 ###
 
 ### Library cutil
