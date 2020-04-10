@@ -37,7 +37,7 @@
                             							
                             <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.502628135" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
                             							
-                            <builder buildPath="${workspace_loc:/cutil_test}/Debug" id="cdt.managedbuild.target.gnu.builder.base.1894749957" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+                            <builder buildPath="${workspace_loc:/cutil_unit}/Debug" id="cdt.managedbuild.target.gnu.builder.base.1894749957" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.archiver.base.459358658" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
                             							
@@ -151,7 +151,7 @@
                             							
                             <targetPlatform id="cdt.managedbuild.target.gnu.platform.cygwin.exe.release.446634180" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.cygwin.exe.release"/>
                             							
-                            <builder buildPath="${workspace_loc:/cutil_test}/Release" id="cdt.managedbuild.target.gnu.builder.cygwin.exe.release.2122225633" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.cygwin.exe.release"/>
+                            <builder buildPath="${workspace_loc:/cutil_unit}/Release" id="cdt.managedbuild.target.gnu.builder.cygwin.exe.release.2122225633" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.cygwin.exe.release"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.assembler.cygwin.exe.release.841022432" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.cygwin.exe.release">
                                 								
@@ -215,7 +215,7 @@
     	
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
         		
-        <project id="cutil_test.cdt.managedbuild.target.gnu.cygwin.exe.1325086051" name="Executable" projectType="cdt.managedbuild.target.gnu.cygwin.exe"/>
+        <project id="cutil_unit.cdt.managedbuild.target.gnu.cygwin.exe.1325086051" name="Executable" projectType="cdt.managedbuild.target.gnu.cygwin.exe"/>
         	
     </storageModule>
     	
