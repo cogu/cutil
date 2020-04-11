@@ -73,7 +73,7 @@
                                 								
                                 <option defaultValue="gnu.c.debugging.level.max" id="gnu.c.compiler.option.debugging.level.1584617483" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
                                 								
-                                <option id="gnu.c.compiler.option.warnings.extrawarn.866532399" superClass="gnu.c.compiler.option.warnings.extrawarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                <option id="gnu.c.compiler.option.warnings.extrawarn.866532399" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.685378845" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
                                 							
@@ -105,7 +105,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="adt/src/adt_u16Map.c|adt/src/adt_str.c|adt/src/adt_stack.c|adt/src/adt_set.c|adt/src/adt_ringbuf.c|adt/src/adt_list.c|adt/src/adt_heap.c|adt/src/adt_hash.c|adt/src/adt_ary.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="adt/src/adt_u16Map.c|adt/src/adt_stack.c|adt/src/adt_set.c|adt/src/adt_ringbuf.c|adt/src/adt_list.c|adt/src/adt_heap.c|adt/src/adt_hash.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
@@ -199,7 +199,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="adt/src/adt_u16Map.c|adt/src/adt_str.c|adt/src/adt_stack.c|adt/src/adt_set.c|adt/src/adt_ringbuf.c|adt/src/adt_list.c|adt/src/adt_heap.c|adt/src/adt_hash.c|adt/src/adt_ary.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="adt/src/adt_u16Map.c|adt/src/adt_stack.c|adt/src/adt_set.c|adt/src/adt_ringbuf.c|adt/src/adt_list.c|adt/src/adt_heap.c|adt/src/adt_hash.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				
