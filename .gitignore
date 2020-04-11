@@ -3,4 +3,5 @@ CMemLeak.txt
 **/Release/
 **/UnitTest/
 /VisualStudio/
+/build/
 language.settings.xml

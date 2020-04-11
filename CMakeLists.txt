@@ -44,6 +44,7 @@ endif()
 
 ### Library cutil
 set (CUTIL_HEADER_LIST
+    inc/argparse.h
     inc/filestream.h
     inc/pack.h
     inc/sha256.h
@@ -53,6 +54,7 @@ set (CUTIL_HEADER_LIST
 )
 
 set (CUTIL_SOURCE_LIST
+    src/argparse.c
     src/filestream.c
     src/pack.c
     src/sha256.c
@@ -90,6 +92,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     add_subdirectory(../adt ${CMAKE_CURRENT_BINARY_DIR}/adt)
 
     set (CUTIL_TEST_SUITE_LIST
+        test/testsuite_argparse.c
         test/testsuite_pack.c
         test/testsuite_sha256.c
         test/testsuite_soa_fsa.c
@@ -107,6 +110,10 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     if (LEAK_CHECK)
         target_compile_definitions(cutil_unit PRIVATE MEM_LEAK_CHECK)
     endif()
+
+    enable_testing()
+    add_test(cutil_test cutil_unit)
+    set_tests_properties(cutil_test PROPERTIES PASS_REGULAR_EXPRESSION "OK \\([0-9]+ tests\\)")
 
 endif()
 ###
