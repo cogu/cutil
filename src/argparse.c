@@ -51,7 +51,11 @@
 
 argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_fn *callback)
 {
-   if ( (argc > 1) && (argv != 0) && (callback != 0) )
+   if ( argc < 2)
+   {
+      return ARGPARSE_SUCCESS; //Nothing to parse
+   }
+   if ( (argv != 0) && (callback != 0) )
    {
       int arg_id;
       adt_str_t short_name;
@@ -103,7 +107,8 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
                }
                else
                {
-                  //parse error already set as default
+                  //positional argument
+                  result = callback((const char*) 0, (const char*) 0, adt_str_cstr(&str));
                }
                break;
             case 1u:
@@ -187,7 +192,23 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
          {
             /* A standalone minus sign is sometimes used as a positional argument to mean
                stdin/stdout instead of a file name. */
-            argparse_result_t result = callback((const char*) 0, (const char*) 0, "-");
+
+            argparse_result_t result;
+            if (has_short_name)
+            {
+               has_short_name = false;
+               result = callback(adt_str_cstr(&short_name), (const char*) 0, "-");
+            }
+            else if (has_long_name)
+            {
+               has_long_name = false;
+               result = callback((const char*) 0, adt_str_cstr(&long_name), "-");
+            }
+            else
+            {
+               result = callback((const char*) 0, (const char*) 0, "-");
+            }
+
             if (result < 0)
             {
                ARGPARSE_DESTROY_VARS();
