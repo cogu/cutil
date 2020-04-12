@@ -46,9 +46,11 @@
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTION PROTOTYPES
 //////////////////////////////////////////////////////////////////////////////
+static void test_no_args_shall_succeed(CuTest* tc);
 static void test_double_minus_error(CuTest* tc);
 static void test_triple_minus_error(CuTest* tc);
 static void test_single_minus_positional(CuTest* tc);
+static void test_shortname_with_minus_value(CuTest* tc);
 static void test_shortname_no_value(CuTest* tc);
 static void test_multiple_flags(CuTest* tc);
 static void test_shortname_before_value(CuTest* tc);
@@ -56,8 +58,10 @@ static void test_shortname_equals_value(CuTest* tc);
 static void test_longname_no_value(CuTest* tc);
 static void test_longname_before_value(CuTest* tc);
 static void test_longname_equals_value(CuTest* tc);
+static void test_positional_arguments_only(CuTest* tc);
 static void test_cmake_configure_example(CuTest* tc);
 static void test_cmake_build_example(CuTest* tc);
+
 
 
 static void argparse_spy_init(void);
@@ -81,9 +85,11 @@ CuSuite* testsuite_argparse(void)
 {
    CuSuite* suite = CuSuiteNew();
 
+   SUITE_ADD_TEST(suite, test_no_args_shall_succeed);
    SUITE_ADD_TEST(suite, test_double_minus_error);
    SUITE_ADD_TEST(suite, test_triple_minus_error);
    SUITE_ADD_TEST(suite, test_single_minus_positional);
+   SUITE_ADD_TEST(suite, test_shortname_with_minus_value);
    SUITE_ADD_TEST(suite, test_shortname_no_value);
    SUITE_ADD_TEST(suite, test_multiple_flags);
    SUITE_ADD_TEST(suite, test_shortname_before_value);
@@ -91,6 +97,7 @@ CuSuite* testsuite_argparse(void)
    SUITE_ADD_TEST(suite, test_longname_no_value);
    SUITE_ADD_TEST(suite, test_longname_before_value);
    SUITE_ADD_TEST(suite, test_longname_equals_value);
+   SUITE_ADD_TEST(suite, test_positional_arguments_only);
    SUITE_ADD_TEST(suite, test_cmake_configure_example);
    SUITE_ADD_TEST(suite, test_cmake_build_example);
 
@@ -99,6 +106,12 @@ CuSuite* testsuite_argparse(void)
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
+
+static void test_no_args_shall_succeed(CuTest* tc)
+{
+   CuAssertIntEquals(tc, ARGPARSE_SUCCESS, argparse_exec(1, NULL, NULL));
+}
+
 static void test_double_minus_error(CuTest* tc)
 {
    const int argc=2;
@@ -128,6 +141,23 @@ static void test_single_minus_positional(CuTest* tc)
    CuAssertIntEquals(tc, 1, adt_ary_length(&m_arg_values));
    str = adt_ary_value(&m_arg_values, 0);
    CuAssertStrEquals(tc, "-", adt_str_cstr(str));
+   argparse_spy_destroy();
+}
+
+static void test_shortname_with_minus_value(CuTest* tc)
+{
+   adt_str_t *name;
+   adt_str_t *value;
+   const int argc=3;
+   const char *argv[3] = {"DUMMY", "-o", "-"};
+   argparse_spy_init();
+   CuAssertIntEquals(tc, ARGPARSE_SUCCESS, argparse_exec(argc, argv, argparse_shortname_value_handler));
+   CuAssertIntEquals(tc, 1, adt_ary_length(&m_arg_names));
+   CuAssertIntEquals(tc, 1, adt_ary_length(&m_arg_values));
+   name = adt_ary_value(&m_arg_names, 0);
+   value = adt_ary_value(&m_arg_values, 0);
+   CuAssertStrEquals(tc, "o", adt_str_cstr(name));
+   CuAssertStrEquals(tc, "-", adt_str_cstr(value));
    argparse_spy_destroy();
 }
 
@@ -253,6 +283,24 @@ static void test_longname_equals_value(CuTest* tc)
    value = adt_ary_value(&m_arg_values, 1);
    CuAssertStrEquals(tc, "address", adt_str_cstr(name));
    CuAssertStrEquals(tc, "127.0.0.1", adt_str_cstr(value));
+   argparse_spy_destroy();
+}
+
+static void test_positional_arguments_only(CuTest* tc)
+{
+   adt_str_t *value;
+   const int argc=4;
+   const char *argv[5] = {"DUMMY", "a", "b", "c"};
+   argparse_spy_init();
+   CuAssertIntEquals(tc, ARGPARSE_SUCCESS, argparse_exec(argc, argv, argparse_positional_handler));
+   CuAssertIntEquals(tc, 3, adt_ary_length(&m_arg_names));
+   CuAssertIntEquals(tc, 3, adt_ary_length(&m_arg_values));
+   value = adt_ary_value(&m_arg_values, 0);
+   CuAssertStrEquals(tc, "a", adt_str_cstr(value));
+   value = adt_ary_value(&m_arg_values, 1);
+   CuAssertStrEquals(tc, "b", adt_str_cstr(value));
+   value = adt_ary_value(&m_arg_values, 2);
+   CuAssertStrEquals(tc, "c", adt_str_cstr(value));
    argparse_spy_destroy();
 }
 
