@@ -6,6 +6,10 @@ Utilities for C-based projects.
 
 A collection of shared components which I use in many of my C-based projects.
 
+### Argparse (First Party)
+
+A small, platform-independent argumnet parser for console applications.
+
 ### CuTest (Third Party)
 
 A customized version of the [CuTest](http://cutest.sourceforge.net/) unit test framework. Has separate license file.
@@ -46,7 +50,7 @@ This repo is a submodule of the [cogu/c-apx](https://github.com/cogu/c-apx) (top
 
 * [cogu/adt](https://github.com/cogu/adt)
 
-The unit test project(s) assumes that the repos are cloned (separately) into a common directory as seen below.
+The unit test project assumes that the repos are cloned side by side into a common directory.
 
 * adt
 * cutil (this repo)
@@ -63,15 +67,26 @@ cd cutil
 
 ## Building with CMake
 
-First clone this repo and its dependencies into a common directory (such as ~/repo) as seen above. Alternatively the repos can be submodules of a top-level repo (as seen in [cogu/c-apx](https://github.com/cogu/c-apx)).
+First clone this repo and its dependency repo(s) side by side into a common directory (see example above). Alternatively the repos can be submodules of a top-level repo (as seen in [cogu/c-apx](https://github.com/cogu/c-apx)).
 
-### Running unit tests (Linux and GCC)
+### Running unit tests (Linux)
 
-```bash
-mkdir UnitTest && cd UnitTest
-cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
-cmake --build .
-./cutil_unit
+Configure:
+
+```sh
+cmake -S . -B build -DUNIT_TEST=ON
+```
+
+Build:
+
+```sh
+cmake --build build --target cutil_unit
+```
+
+Run test cases:
+
+```cmd
+cd build && ctest
 ```
 
 ### Running unit tests (Windows and Visual Studio)
@@ -80,21 +95,28 @@ Use a command prompt provided by your Visual Studio installation.
 For example, I use "x64 Native Tools Command Prompt for VS2019" which is found on the start menu.
 It conveniently comes with CMake pre-installed which generates Visual Studio projects by default.
 
+Configure:
+
 ```cmd
-mkdir UnitTest && cd UnitTest
-cmake -DUNIT_TEST=ON -DLEAK_CHECK=ON ..
-cmake --build . --config Debug
-Debug\cutil_unit.exe
+cmake -S . -B VisualStudio -DUNIT_TEST=ON
+```
+
+Build:
+
+```cmd
+cmake --build VisualStudio --config Debug --target cutil_unit
+```
+
+Run test cases:
+
+```cmd
+cd VisualStudio
+ctest
 ```
 
 ### CMake Options
 
-#### Generic Options
-
-| CMake Option      | Usage            | Description                             |
-|-------------------|------------------|-----------------------------------------|
-| LEAK_CHECK        | -DLEAK_CHECK=ON  | Enables memory leak check detection     |
-| UNIT_TEST         | -DUNIT_TEST=ON   | Activates UNIT_TEST preprocessor define |
+Some options are inherited from [cogu/adt](https://github.com/cogu/adt) and apply here as well.
 
 #### Pack Options
 
@@ -102,8 +124,8 @@ Debug\cutil_unit.exe
 |--------------|----------------------------------------|----------------------------------|
 | BYTE_ORDER   | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order              |
 
-If the platform byte order is known during compile time we can switch some of the pack
-routines into simple memcpy calls which can be much faster.
+If the platform byte order is known during compile time we can switch the native-compatible
+pack-routines into memcpy calls which can be much faster.
 By default, CMake tries to automatically detect the byte order (AUTO) but you can force this value
 (to LITTE or BIG) in case that doesn't work.
 
