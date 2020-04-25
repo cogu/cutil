@@ -10,7 +10,7 @@ A collection of shared components which I use in many of my C-based projects.
 
 ### Argparse (First Party)
 
-A small, platform-independent argumnet parser for console applications.
+A small and platform-independent argument parser for console applications.
 
 ### CuTest (Third Party)
 
