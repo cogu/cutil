@@ -11,14 +11,16 @@ endif()
 set(BYTE_ORDER AUTO CACHE STRING "Select byte order")
 set_property(CACHE BYTE_ORDER PROPERTY STRINGS NONE AUTO LITTLE BIG)
 
-if(BYTE_ORDER STREQUAL "LITTLE")
+if( (BYTE_ORDER STREQUAL "LITTLE") OR (BYTE_ORDER EQUAL 0))
     set(BYTE_ORDER_VALUE 0)
-elseif(BYTE_ORDER STREQUAL "BIG")
+elseif( (BYTE_ORDER STREQUAL "BIG") OR (BYTE_ORDER EQUAL 1) )
     set(BYTE_ORDER_VALUE 1)
-elseif(BYTE_ORDER STREQUAL "AUTO")
+elseif( BYTE_ORDER STREQUAL "AUTO" )
     include(TestBigEndian)
     TEST_BIG_ENDIAN(BYTE_ORDER_VALUE)
     message(STATUS "BYTE_ORDER_VALUE=${BYTE_ORDER_VALUE}")
+elseif (NOT BYTE_ORDER STREQUAL "NONE")
+    message(FATAL_ERROR "Unsupported value '${BYTE_ORDER}' in BYTE_ORDER property")
 endif()
 
 if (UNIT_TEST)
@@ -44,28 +46,28 @@ endif()
 
 ### Library cutil
 set (CUTIL_HEADER_LIST
-    inc/argparse.h
-    inc/filestream.h
-    inc/pack.h
-    inc/sha256.h
-    inc/soa_chunk.h
-    inc/soa_fsa.h
-    inc/soa.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/argparse.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/filestream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/pack.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/sha256.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa_chunk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa_fsa.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa.h
 )
 
 set (CUTIL_SOURCE_LIST
-    src/argparse.c
-    src/filestream.c
-    src/pack.c
-    src/sha256.c
-    src/soa_chunk.c
-    src/soa_fsa.c
-    src/soa.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/argparse.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/filestream.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/pack.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sha256.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/soa_chunk.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/soa_fsa.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/soa.c
 )
 
 if (LEAK_CHECK)
-    list (APPEND CUTIL_HEADER_LIST inc/CMemLeak.h)
-    list (APPEND CUTIL_SOURCE_LIST src/CMemLeak.c)
+    list (APPEND CUTIL_HEADER_LIST ${CMAKE_CURRENT_SOURCE_DIR}/inc/CMemLeak.h)
+    list (APPEND CUTIL_SOURCE_LIST ${CMAKE_CURRENT_SOURCE_DIR}/src/CMemLeak.c)
 endif()
 
 add_library(cutil ${CUTIL_SOURCE_LIST} ${CUTIL_HEADER_LIST})
