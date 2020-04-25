@@ -1,3 +1,5 @@
+![unit tests](https://github.com/cogu/cutil/workflows/unit%20tests/badge.svg)
+
 # cutil
 
 Utilities for C-based projects.
