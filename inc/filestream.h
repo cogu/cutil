@@ -5,9 +5,7 @@
 #include "adt_bytearray.h"
 
 typedef struct ifstream_handler_t{
-   //user-defined argument
    void *arg;
-   //events
    void (*open)(void *arg);
    void (*close)(void *arg);
    void (*write)(void *arg,const uint8_t *pChunk, uint32_t chunkLen);
