@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND DATA TYPES
 //////////////////////////////////////////////////////////////////////////////
-
+#define UINT64_SIZE 8
 //////////////////////////////////////////////////////////////////////////////
 // LOCAL FUNCTION PROTOTYPES
 //////////////////////////////////////////////////////////////////////////////
@@ -66,16 +66,16 @@ static void test_pack_unpack_LE64(CuTest* tc)
 #endif
    uint32_t i;
    value = 0x0;
-   packLE64(&buf[0], value);
+   packLE64(&buf[0], value, UINT64_SIZE);
    for (i=0; i<8; i++)
    {
       CuAssertUIntEquals(tc, 0, buf[i]);
    }
-   result = unpackLE64(&buf[0]);
+   result = unpackLE64(&buf[0], UINT64_SIZE);
    CuAssertULIntEquals(tc, value, result);
 
    value = 0x0123456789ABCDEFUL;
-   packLE64(&buf[0], value);
+   packLE64(&buf[0], value, UINT64_SIZE);
    CuAssertUIntEquals(tc, 0xEF, buf[0]);
    CuAssertUIntEquals(tc, 0xCD, buf[1]);
    CuAssertUIntEquals(tc, 0xAB, buf[2]);
@@ -84,42 +84,36 @@ static void test_pack_unpack_LE64(CuTest* tc)
    CuAssertUIntEquals(tc, 0x45, buf[5]);
    CuAssertUIntEquals(tc, 0x23, buf[6]);
    CuAssertUIntEquals(tc, 0x01, buf[7]);
-   result = unpackLE64(&buf[0]);
+   result = unpackLE64(&buf[0], UINT64_SIZE);
    CuAssertULIntEquals(tc, value, result);
 
    value = 0xFFFFFFFFFFFFFFFFUL;
-   packLE64(&buf[0], value);
+   packLE64(&buf[0], value, UINT64_SIZE);
    for (i=0; i<8; i++)
    {
       CuAssertUIntEquals(tc, 0xFF, buf[i]);
    }
-   result = unpackLE64(&buf[0]);
+   result = unpackLE64(&buf[0], UINT64_SIZE);
    CuAssertULIntEquals(tc, value, result);
 }
 
 static void test_unpack_little_endian_using_macros(CuTest* tc)
 {
 #ifdef USE_PLATFORM_TYPES
-   uint8 buf[8];
+   uint8 buf[4];
    uint8 u8Value;
    uint16 u16Value;
    uint32 u32Value;
-# if defined(__GNUC__) && defined(__LP64__)
-   uint64 u64Value;
-# endif
 #else
-   uint8_t buf[8];
+   uint8_t buf[4];
    uint8_t u8Value;
    uint16_t u16Value;
    uint32_t u32Value;
-# if defined(__GNUC__) && defined(__LP64__)
-   uint64_t u64Value;
-# endif
 #endif
    uint32_t i;
    const uint8_t *p;
    const uint8_t *pBegin = &buf[0];
-   for (i=0; i<8; i++)
+   for (i=0; i<4; i++)
    {
       buf[i] = i;
    }
@@ -135,11 +129,4 @@ static void test_unpack_little_endian_using_macros(CuTest* tc)
    u32Value = unpackU32LE(p);
    CuAssertConstPtrEquals(tc, pBegin+4, p);
    CuAssertUIntEquals(tc, 1*256u+2*65536u+3*16777216u, u32Value);
-#if defined(__GNUC__) && defined(__LP64__)
-   p = pBegin;
-   u64Value = unpackU64LE(p);
-   CuAssertConstPtrEquals(tc, pBegin+8, p);
-   CuAssertULIntEquals(tc, 1*256u+2*65536u+3*16777216u+4*4294967296UL+5*1099511627776UL+6*281474976710656UL+7*72057594037927936UL, u64Value);
-#endif
-
 }

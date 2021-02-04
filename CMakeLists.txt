@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(cutil LANGUAGES C VERSION 1.0.0)
+project(cutil LANGUAGES C VERSION 1.1.0)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(../adt/cmake/BuildTypes.cmake)

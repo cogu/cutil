@@ -1,7 +1,11 @@
 /**
 * cogu 2017-02-19: This is a slighty modified version of CuTest.c v1.5 (http://cutest.sourceforge.net)
 * I have fixed a memory leak in the framework as well as adding test macro for unsigned integer equality (CuAssertUIntEquals).
-* 
+*
+* cogu 2020-12-01: Added the AssertFalse test macro
+*
+* cogu 2020-01-12: Made Improvments to 64-bit (long long) test methods
+*
 */
 
 #ifndef CU_TEST_H
@@ -65,23 +69,26 @@ void CuTestDelete(CuTest *t);
 /* Internal versions of assert functions -- use the public versions */
 void CuFail_Line(CuTest* tc, const char* file, int line, const char* message2, const char* message);
 void CuAssert_Line(CuTest* tc, const char* file, int line, const char* message, int condition);
-void CuAssertStrEquals_LineMsg(CuTest* tc, 
-	const char* file, int line, const char* message, 
+void CuAssertStrEquals_LineMsg(CuTest* tc,
+	const char* file, int line, const char* message,
 	const char* expected, const char* actual);
-void CuAssertIntEquals_LineMsg(CuTest* tc, 
-	const char* file, int line, const char* message, 
+void CuAssertIntEquals_LineMsg(CuTest* tc,
+	const char* file, int line, const char* message,
 	int expected, int actual);
+void CuAssertLIntEquals_LineMsg(CuTest* tc,
+	const char* file, int line, const char* message,
+	long long int expected, long long int actual);
 void CuAssertUIntEquals_LineMsg(CuTest* tc,
    const char* file, int line, const char* message,
    unsigned int expected, unsigned int actual);
 void CuAssertULIntEquals_LineMsg(CuTest* tc,
    const char* file, int line, const char* message,
    unsigned long long int expected, unsigned long long int actual);
-void CuAssertDblEquals_LineMsg(CuTest* tc, 
-	const char* file, int line, const char* message, 
+void CuAssertDblEquals_LineMsg(CuTest* tc,
+	const char* file, int line, const char* message,
 	double expected, double actual, double delta);
-void CuAssertPtrEquals_LineMsg(CuTest* tc, 
-	const char* file, int line, const char* message, 
+void CuAssertPtrEquals_LineMsg(CuTest* tc,
+	const char* file, int line, const char* message,
 	void* expected, void* actual);
 void CuAssertConstPtrEquals_LineMsg(CuTest* tc,
    const char* file, int line, const char* message,
@@ -95,11 +102,14 @@ void CuAssertBoolEquals_LineMsg(CuTest* tc,
 #define CuFail(tc, ms)                        CuFail_Line(  (tc), __FILE__, __LINE__, NULL, (ms))
 #define CuAssert(tc, ms, cond)                CuAssert_Line((tc), __FILE__, __LINE__, (ms), (cond))
 #define CuAssertTrue(tc, cond)                CuAssert_Line((tc), __FILE__, __LINE__, "assert failed", (cond))
+#define CuAssertFalse(tc, cond)               CuAssert_Line((tc), __FILE__, __LINE__, "assert failed", (!cond))
 
 #define CuAssertStrEquals(tc,ex,ac)           CuAssertStrEquals_LineMsg((tc),__FILE__,__LINE__,NULL,(ex),(ac))
 #define CuAssertStrEquals_Msg(tc,ms,ex,ac)    CuAssertStrEquals_LineMsg((tc),__FILE__,__LINE__,(ms),(ex),(ac))
 #define CuAssertIntEquals(tc,ex,ac)           CuAssertIntEquals_LineMsg((tc),__FILE__,__LINE__,NULL,(ex),(ac))
 #define CuAssertIntEquals_Msg(tc,ms,ex,ac)    CuAssertIntEquals_LineMsg((tc),__FILE__,__LINE__,(ms),(ex),(ac))
+#define CuAssertLIntEquals(tc,ex,ac)           CuAssertLIntEquals_LineMsg((tc),__FILE__,__LINE__,NULL,(ex),(ac))
+#define CuAssertLIntEquals_Msg(tc,ms,ex,ac)    CuAssertLIntEquals_LineMsg((tc),__FILE__,__LINE__,(ms),(ex),(ac))
 #define CuAssertUIntEquals(tc,ex,ac)          CuAssertUIntEquals_LineMsg((tc),__FILE__,__LINE__,NULL,(ex),(ac))
 #define CuAssertUIntEquals_Msg(tc,ms,ex,ac)   CuAssertUIntEquals_LineMsg((tc),__FILE__,__LINE__,(ms),(ex),(ac))
 #define CuAssertULIntEquals(tc,ex,ac)         CuAssertULIntEquals_LineMsg((tc),__FILE__,__LINE__,NULL,(ex),(ac))
