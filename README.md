@@ -71,7 +71,10 @@ cd cutil
 
 First clone this repo and its dependency repo(s) side by side into a common directory (see example above). Alternatively the repos can be submodules of a top-level repo (as seen in [cogu/c-apx](https://github.com/cogu/c-apx)).
 
-### Running unit tests (Linux)
+For Windows, use a "Native tools command prompt" from your Visual Studio installation. It comes with a cmake binary that
+by default chooses the appropriate compiler version.
+
+### Running unit tests (Linux and Windows)
 
 Configure:
 
@@ -89,31 +92,6 @@ Run test cases:
 
 ```cmd
 cd build && ctest
-```
-
-### Running unit tests (Windows and Visual Studio)
-
-Use a command prompt provided by your Visual Studio installation.
-For example, I use "x64 Native Tools Command Prompt for VS2019" which is found on the start menu.
-It conveniently comes with CMake pre-installed which generates Visual Studio projects by default.
-
-Configure:
-
-```cmd
-cmake -S . -B VisualStudio -DUNIT_TEST=ON
-```
-
-Build:
-
-```cmd
-cmake --build VisualStudio --config Debug --target cutil_unit
-```
-
-Run test cases:
-
-```cmd
-cd VisualStudio
-ctest
 ```
 
 ### CMake Options
