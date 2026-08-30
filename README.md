@@ -71,38 +71,57 @@ cd cutil
 
 First clone this repo and its dependency repo(s) side by side into a common directory (see example above). Alternatively the repos can be submodules of a top-level repo (as seen in [cogu/c-apx](https://github.com/cogu/c-apx)).
 
+### Using CMake Presets (Clang 18 + Ninja)
+
+```bash
+# Run unit tests
+cmake --preset clang-test
+cmake --build --preset clang-test
+ctest --preset clang-test
+
+# Address and Undefined Behavior Sanitizers (ASan + UBSan)
+cmake --preset clang-asan
+cmake --build --preset clang-asan
+ctest --preset clang-asan
+
+# Static Analysis
+cmake --preset clang-tidy
+cmake --build --preset clang-tidy
+```
+
+### Manual CMake Workflows (Linux and Windows)
+
 For Windows, use a "Native tools command prompt" from your Visual Studio installation. It comes with a cmake binary that
 by default chooses the appropriate compiler version.
 
-### Running unit tests (Linux and Windows)
+#### Running unit tests
 
 Configure:
 
 ```sh
-cmake -S . -B build -DUNIT_TEST=ON
+cmake -S . -B build-test -DUNIT_TEST=ON
 ```
 
 Build:
 
 ```sh
-cmake --build build --target cutil_unit
+cmake --build build-test --target cutil_unit
 ```
 
 Run test cases:
 
-```cmd
-cd build && ctest
+```sh
+ctest --test-dir build-test --output-on-failure
 ```
 
 ### CMake Options
 
-Some options are inherited from [cogu/adt](https://github.com/cogu/adt) and apply here as well.
-
-#### Pack Options
-
-| CMake Option | Usage                                  | Description                      |
-|--------------|----------------------------------------|----------------------------------|
-| BYTE_ORDER   | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order              |
+| CMake Option       | Usage                                  | Description                                      |
+|--------------------|----------------------------------------|--------------------------------------------------|
+| UNIT_TEST          | -DUNIT_TEST=ON                         | Activates UNIT_TEST preprocessor define          |
+| LEAK_CHECK         | -DLEAK_CHECK=ON                        | Enables memory leak check detection              |
+| CUTIL_SANITIZERS   | -DCUTIL_SANITIZERS="address,undefined" | Enables sanitizers for GCC or Clang              |
+| BYTE_ORDER         | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order                              |
 
 If the platform byte order is known during compile time we can switch the native-compatible
 pack-routines into memcpy calls which can be much faster.
