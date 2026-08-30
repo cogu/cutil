@@ -1,11 +1,43 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 project(cutil LANGUAGES C VERSION 1.1.0)
 
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
+
+if(MSVC)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall)
+endif()
+
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    include(../adt/cmake/BuildTypes.cmake)
-    include(../adt/cmake/LeakCheck.cmake)
-    include(../adt/cmake/UnitTest.cmake)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../adt/cmake/BuildTypes.cmake")
+        include(../adt/cmake/BuildTypes.cmake)
+        include(../adt/cmake/LeakCheck.cmake)
+        include(../adt/cmake/UnitTest.cmake)
+    endif()
+endif()
+
+option(UNIT_TEST "Unit Test Build" OFF)
+option(LEAK_CHECK "Memory Leak Detection" OFF)
+
+set(CUTIL_SANITIZERS "" CACHE STRING "Comma-separated sanitizers to enable (for example: address,undefined or thread)")
+set_property(CACHE CUTIL_SANITIZERS PROPERTY STRINGS "" "address" "address,undefined" "thread")
+
+if(CUTIL_SANITIZERS)
+    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+        add_compile_options(-fsanitize=${CUTIL_SANITIZERS} -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=${CUTIL_SANITIZERS})
+    else()
+        message(FATAL_ERROR "CUTIL_SANITIZERS is only supported with GCC or Clang")
+    endif()
 endif()
 
 set(BYTE_ORDER AUTO CACHE STRING "Select byte order")
@@ -37,11 +69,6 @@ add_library(cutest cutest/CuTest.c cutest/CuTest.h)
 target_include_directories(cutest PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/cutest
 )
-
-if(MSVC)
-    target_compile_definitions(cutest PUBLIC _CRT_SECURE_NO_WARNINGS)
-endif()
-
 ###
 
 ### Library cutil
@@ -70,6 +97,16 @@ if (LEAK_CHECK)
     list (APPEND CUTIL_SOURCE_LIST ${CMAKE_CURRENT_SOURCE_DIR}/src/CMemLeak.c)
 endif()
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    if(NOT TARGET adt)
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../adt/CMakeLists.txt")
+            add_subdirectory(../adt ${CMAKE_CURRENT_BINARY_DIR}/adt)
+        else()
+            message(FATAL_ERROR "adt submodule not found at ../adt")
+        endif()
+    endif()
+endif()
+
 add_library(cutil ${CUTIL_SOURCE_LIST} ${CUTIL_HEADER_LIST})
 target_link_libraries(cutil PRIVATE adt)
 target_include_directories(cutil PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc)
@@ -89,34 +126,35 @@ endif()
 
 ### Executable cutil_unit
 
-
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    add_subdirectory(../adt ${CMAKE_CURRENT_BINARY_DIR}/adt)
+    if (UNIT_TEST)
+        set (CUTIL_TEST_SUITE_LIST
+            test/testsuite_argparse.c
+            test/testsuite_pack.c
+            test/testsuite_sha256.c
+            test/testsuite_soa_fsa.c
+        )
 
-    set (CUTIL_TEST_SUITE_LIST
-        test/testsuite_argparse.c
-        test/testsuite_pack.c
-        test/testsuite_sha256.c
-        test/testsuite_soa_fsa.c
-    )
+        add_executable(cutil_unit test/test_main.c ${CUTIL_TEST_SUITE_LIST})
+        target_link_libraries(cutil_unit PRIVATE adt cutil cutest)
+        target_include_directories(cutil_unit PRIVATE
+                                  "${PROJECT_BINARY_DIR}"
+                                  "${CMAKE_CURRENT_SOURCE_DIR}/inc"
+                                  "${CMAKE_CURRENT_SOURCE_DIR}/test"
+                                  )
+        target_compile_definitions(cutil_unit PRIVATE UNIT_TEST)
 
-    add_executable(cutil_unit test/test_main.c ${CUTIL_TEST_SUITE_LIST})
-    target_link_libraries(cutil_unit PRIVATE adt cutil cutest)
-    target_include_directories(cutil_unit PRIVATE
-                              "${PROJECT_BINARY_DIR}"
-                              "${CMAKE_CURRENT_SOURCE_DIR}/inc"
-                              "${CMAKE_CURRENT_SOURCE_DIR}/test"
-                              )
-    target_compile_definitions(cutil_unit PRIVATE UNIT_TEST)
+        if (LEAK_CHECK)
+            target_compile_definitions(cutil_unit PRIVATE MEM_LEAK_CHECK)
+        endif()
 
-    if (LEAK_CHECK)
-        target_compile_definitions(cutil_unit PRIVATE MEM_LEAK_CHECK)
+        enable_testing()
+        add_test(NAME cutil_unit COMMAND cutil_unit)
+        set_tests_properties(cutil_unit PROPERTIES 
+            PASS_REGULAR_EXPRESSION "OK \\([0-9]+ tests\\)"
+            LABELS "unit"
+        )
     endif()
-
-    enable_testing()
-    add_test(cutil_test cutil_unit)
-    set_tests_properties(cutil_test PROPERTIES PASS_REGULAR_EXPRESSION "OK \\([0-9]+ tests\\)")
-
 endif()
 ###
 
