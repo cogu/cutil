@@ -75,6 +75,7 @@ target_include_directories(cutest PUBLIC
 set (CUTIL_HEADER_LIST
     ${CMAKE_CURRENT_SOURCE_DIR}/inc/argparse.h
     ${CMAKE_CURRENT_SOURCE_DIR}/inc/filestream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/fileutil.h
     ${CMAKE_CURRENT_SOURCE_DIR}/inc/pack.h
     ${CMAKE_CURRENT_SOURCE_DIR}/inc/sha256.h
     ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa_chunk.h
@@ -85,6 +86,7 @@ set (CUTIL_HEADER_LIST
 set (CUTIL_SOURCE_LIST
     ${CMAKE_CURRENT_SOURCE_DIR}/src/argparse.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/filestream.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/fileutil.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/pack.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sha256.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/soa_chunk.c
@@ -108,7 +110,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 add_library(cutil ${CUTIL_SOURCE_LIST} ${CUTIL_HEADER_LIST})
-target_link_libraries(cutil PRIVATE adt)
+target_link_libraries(cutil PUBLIC adt)
 target_include_directories(cutil PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 if(DEFINED BYTE_ORDER_VALUE)
     target_compile_definitions(cutil PUBLIC PLATFORM_BYTE_ORDER=${BYTE_ORDER_VALUE})
@@ -130,6 +132,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     if (UNIT_TEST)
         set (CUTIL_TEST_SUITE_LIST
             test/testsuite_argparse.c
+            test/testsuite_fileutil.c
             test/testsuite_pack.c
             test/testsuite_sha256.c
             test/testsuite_soa_fsa.c
