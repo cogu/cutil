@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(cutil LANGUAGES C VERSION 1.1.1)
+project(cutil LANGUAGES C VERSION 1.2.0)
 
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
@@ -153,7 +153,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
         enable_testing()
         add_test(NAME cutil_unit COMMAND cutil_unit)
-        set_tests_properties(cutil_unit PROPERTIES 
+        set_tests_properties(cutil_unit PROPERTIES
             PASS_REGULAR_EXPRESSION "OK \\([0-9]+ tests\\)"
             LABELS "unit"
         )
