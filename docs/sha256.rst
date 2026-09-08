@@ -1,0 +1,9 @@
+SHA-256 (sha256)
+================
+
+The `sha256` module provides an implementation of the NIST Secure Hash Algorithm 256 (SHA-256), released into the public domain by Alain Mosnier.
+
+API Reference
+-------------
+
+.. doxygenfunction:: sha256_calc
