@@ -13,20 +13,24 @@ set(CMAKE_OPTIMIZE_DEPENDENCIES ON)
 if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
     add_compile_options(/W4)
+    option(ENABLE_MSVC_ANALYZE "Enable MSVC static code analysis (/analyze)" OFF)
+    if(ENABLE_MSVC_ANALYZE)
+        add_compile_options(/analyze)
+    endif()
 else()
-    add_compile_options(-Wall)
+    add_compile_options(-Wall -Wextra)
 endif()
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../adt/cmake/BuildTypes.cmake")
-        include(../adt/cmake/BuildTypes.cmake)
-        include(../adt/cmake/LeakCheck.cmake)
-        include(../adt/cmake/UnitTest.cmake)
+    if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+        set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
+        set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
     endif()
-endif()
 
-option(UNIT_TEST "Unit Test Build" OFF)
-option(LEAK_CHECK "Memory Leak Detection" OFF)
+    option(UNIT_TEST "Unit Test Build" OFF)
+    option(LEAK_CHECK "Memory Leak Detection" OFF)
+endif()
+include(CMakeDependentOption)
 
 set(CUTIL_SANITIZERS "" CACHE STRING "Comma-separated sanitizers to enable (for example: address,undefined or thread)")
 set_property(CACHE CUTIL_SANITIZERS PROPERTY STRINGS "" "address" "address,undefined" "thread")
@@ -73,14 +77,14 @@ target_include_directories(cutest PUBLIC
 
 ### Library cutil
 set (CUTIL_HEADER_LIST
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/argparse.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/filestream.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/fileutil.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/pack.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/sha256.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa_chunk.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa_fsa.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/soa.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/argparse.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/filestream.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/fileutil.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/pack.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/sha256.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/soa_chunk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/soa_fsa.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/soa.h
 )
 
 set (CUTIL_SOURCE_LIST
@@ -95,7 +99,7 @@ set (CUTIL_SOURCE_LIST
 )
 
 if (LEAK_CHECK)
-    list (APPEND CUTIL_HEADER_LIST ${CMAKE_CURRENT_SOURCE_DIR}/inc/CMemLeak.h)
+    list (APPEND CUTIL_HEADER_LIST ${CMAKE_CURRENT_SOURCE_DIR}/include/CMemLeak.h)
     list (APPEND CUTIL_SOURCE_LIST ${CMAKE_CURRENT_SOURCE_DIR}/src/CMemLeak.c)
 endif()
 
@@ -111,7 +115,7 @@ endif()
 
 add_library(cutil ${CUTIL_SOURCE_LIST} ${CUTIL_HEADER_LIST})
 target_link_libraries(cutil PUBLIC adt)
-target_include_directories(cutil PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+target_include_directories(cutil PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(DEFINED BYTE_ORDER_VALUE)
     target_compile_definitions(cutil PUBLIC PLATFORM_BYTE_ORDER=${BYTE_ORDER_VALUE})
 endif()
@@ -132,17 +136,19 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     if (UNIT_TEST)
         set (CUTIL_TEST_SUITE_LIST
             test/testsuite_argparse.c
+            test/testsuite_filestream.c
             test/testsuite_fileutil.c
             test/testsuite_pack.c
             test/testsuite_sha256.c
             test/testsuite_soa_fsa.c
+            test/testsuite_soa.c
         )
 
         add_executable(cutil_unit test/test_main.c ${CUTIL_TEST_SUITE_LIST})
         target_link_libraries(cutil_unit PRIVATE adt cutil cutest)
         target_include_directories(cutil_unit PRIVATE
                                   "${PROJECT_BINARY_DIR}"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/inc"
+                                  "${CMAKE_CURRENT_SOURCE_DIR}/include"
                                   "${CMAKE_CURRENT_SOURCE_DIR}/test"
                                   )
         target_compile_definitions(cutil_unit PRIVATE UNIT_TEST)
