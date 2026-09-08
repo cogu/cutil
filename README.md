@@ -1,44 +1,36 @@
 ![unit tests](https://github.com/cogu/cutil/workflows/unit%20tests/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/c-cutil/badge/?version=latest)](https://c-cutil.readthedocs.io/en/latest/?badge=latest)
 
 # cutil
 
 Utilities for C-based projects.
 
+Online documentation and API reference: **[c-cutil.readthedocs.io](https://c-cutil.readthedocs.io/)**
+
 ## What is it?
 
-A collection of shared components which I use in many of my C-based projects.
+**cutil** is a collection of platform-independent, modular utility libraries and helper modules for C programming (C99 and later). It provides essential building blocks used across various C projects:
 
-### Argparse (First Party)
+* **Command Line Parsing**: Lightweight callback-driven command line option parser supporting short options, long options, and positional arguments.
+* **Stream & File Reading**: Chunk-based file reader with cross-platform CRLF-to-LF line ending normalization.
+* **Filesystem & Path Utilities**: Cross-platform path concatenation and directory checking.
+* **Binary Serialization / Packing**: Big-endian and little-endian integer packing and unpacking routines with optional platform byte-order hardware acceleration.
+* **Cryptography**: Public domain NIST SHA-256 calculation implementation.
+* **Memory Allocation**: Efficient Small Object Allocator (SOA) based on Andrei Alexandrescu's design.
+* **Testing & Diagnostic Tools**: Includes the CuTest unit test framework and CMemLeak leak detector.
 
-A small and platform-independent argument parser for console applications.
+### Available Components
 
-### CuTest (Third Party)
-
-A customized version of the [CuTest](http://cutest.sourceforge.net/) unit test framework. Has separate license file.
-
-Look to the source code and header to see what modifications I made.
-
-### CMemLeak (Third Party)
-
-A platform-independent and compiler-independent memory leak checker for C.
-
-### Filestream (First Party)
-
-A file stream reader inspired by stream reading mechanism in Node.js.
-
-### Pack (First Party)
-
-Platform-independent (byte) serialization and deserialization routines for integers.
-
-There is an option to build platform-dependent versions which can yield faster runtimes.
-
-### sha256 (Third Party)
-
-SHA-256 calculation routine. I have adapted the unit tests for CuTest.
-
-### SOA (First Party)
-
-A Small Object Allocator (SOA). This is actually my own C port of the *small object allocator* described in the excellent book "Modern C++ Design" by Andrei Alexandrescu (2001).
+| Component | Header | Category | Description |
+|-----------|--------|----------|-------------|
+| `argparse` | `argparse.h` | First Party | Callback-driven command line argument parser |
+| `filestream` | `filestream.h` | First Party | Stream file reader with CRLF normalization |
+| `fileutil` | `fileutil.h` | First Party | Cross-platform directory detection and path join |
+| `pack` | `pack.h` | First Party | 32-bit and 64-bit integer serialization/deserialization |
+| `soa` | `soa.h` | First Party | Small object allocator with fixed-size pools |
+| `sha256` | `sha256.h` | Third Party | Public domain SHA-256 hash calculation |
+| `CuTest` | `cutest/CuTest.h` | Third Party | Lightweight C unit test framework |
+| `CMemLeak` | `include/CMemLeak.h` | Third Party | Memory leak detection utility |
 
 ## Where is it used?
 
@@ -46,30 +38,22 @@ A Small Object Allocator (SOA). This is actually my own C port of the *small obj
 * [cogu/c-apx](https://github.com/cogu/c-apx)
 * [cogu/dtl_json](https://github.com/cogu/dtl_json)
 
-This repo is a submodule of the [cogu/c-apx](https://github.com/cogu/c-apx) (top-level) project.
+This repository is also a submodule of the [cogu/c-apx](https://github.com/cogu/c-apx) project.
 
 ## Dependencies
 
-* [cogu/adt](https://github.com/cogu/adt)
+* [cogu/adt](https://github.com/cogu/adt) (v0.3.5 or later)
 
-The unit test project assumes that the repos are cloned side by side into a common directory.
-
-* adt
-* cutil (this repo)
-
-### Git Example
+When building standalone unit tests, clone `adt` and `cutil` side by side:
 
 ```bash
-cd ~
-mkdir repo && cd repo
+cd ~/repo
 git clone https://github.com/cogu/adt.git
 git clone https://github.com/cogu/cutil.git
 cd cutil
 ```
 
 ## Building with CMake
-
-First clone this repo and its dependency repo(s) side by side into a common directory (see example above). Alternatively the repos can be submodules of a top-level repo (as seen in [cogu/c-apx](https://github.com/cogu/c-apx)).
 
 ### Using CMake Presets (Clang 18 + Ninja)
 
@@ -91,41 +75,34 @@ cmake --build --preset clang-tidy
 
 ### Manual CMake Workflows (Linux and Windows)
 
-For Windows, use a "Native tools command prompt" from your Visual Studio installation. It comes with a cmake binary that
-by default chooses the appropriate compiler version.
+For Windows, open a "Native Tools Command Prompt for Visual Studio".
 
-#### Running unit tests
-
-Configure:
+#### Configure
 
 ```sh
-cmake -S . -B build-test -DUNIT_TEST=ON
+cmake -S . -B build -DUNIT_TEST=ON
 ```
 
-Build:
+#### Build
 
 ```sh
-cmake --build build-test --target cutil_unit
+cmake --build build --target cutil_unit
 ```
 
-Run test cases:
+#### Run Unit Tests
 
 ```sh
-ctest --test-dir build-test --output-on-failure
+ctest --test-dir build --output-on-failure
 ```
 
 ### CMake Options
 
-| CMake Option       | Usage                                  | Description                                      |
-|--------------------|----------------------------------------|--------------------------------------------------|
-| UNIT_TEST          | -DUNIT_TEST=ON                         | Activates UNIT_TEST preprocessor define          |
-| LEAK_CHECK         | -DLEAK_CHECK=ON                        | Enables memory leak check detection              |
-| CUTIL_SANITIZERS   | -DCUTIL_SANITIZERS="address,undefined" | Enables sanitizers for GCC or Clang              |
-| BYTE_ORDER         | -DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG] | Platform byte order                              |
+| CMake Option | Usage | Default | Description |
+|---|---|---|---|
+| `UNIT_TEST` | `-DUNIT_TEST=ON` | `OFF` | Enables building unit test executable (`cutil_unit`) |
+| `LEAK_CHECK` | `-DLEAK_CHECK=ON` | `OFF` | Enables memory leak detection via CMemLeak |
+| `CUTIL_SANITIZERS` | `-DCUTIL_SANITIZERS="address,undefined"` | `""` | Enables compiler sanitizers (GCC / Clang) |
+| `BYTE_ORDER` | `-DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG]` | `AUTO` | Platform endianness for pack optimizations |
+| `ENABLE_MSVC_ANALYZE` | `-DENABLE_MSVC_ANALYZE=ON` | `OFF` | Enables MSVC static code analysis (`/analyze`) |
 
-If the platform byte order is known during compile time we can switch the native-compatible
-pack-routines into memcpy calls which can be much faster.
-By default, CMake tries to automatically detect the byte order (AUTO) but you can force this value
-(to LITTE or BIG) in case that doesn't work.
-
-When BYTE_ORDER is NONE the pack routines compiles in a form that should work for any platform (safe but slow).
+When `BYTE_ORDER` is `AUTO`, CMake automatically detects host byte order and enables optimized memory operations. Setting `NONE` selects safe portable algorithms for any architecture.
