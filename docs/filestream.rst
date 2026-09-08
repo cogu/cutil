@@ -52,3 +52,13 @@ Reading Files
 .. doxygenfunction:: cutil_ifstream_read_text_file_from_handle
 
 .. doxygenfunction:: cutil_ifstream_util_read_text_file
+
+Example
+-------
+
+The following example demonstrates streaming a file using a custom handler, as well as using the convenience utility to read an entire file into an :c:type:`adt_bytearray_t`:
+
+.. literalinclude:: ../example/filestream_example.c
+   :language: c
+   :lines: 23-93
+
