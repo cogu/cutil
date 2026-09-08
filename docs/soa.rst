@@ -8,11 +8,11 @@ Architecture
 
 The allocator is organized in a three-tier hierarchy:
 
-1. **Chunk Allocator (:c:type:`cutil_soa_chunk_t`)**:
+1. **Chunk Allocator** (:c:type:`cutil_soa_chunk_t`):
    Manages a single contiguous buffer divided into fixed-size blocks (up to 255 blocks). It tracks free blocks using an embedded free-index list inside unallocated blocks.
-2. **Fixed-Size Allocator (:c:type:`cutil_soa_fsa_t`)**:
+2. **Fixed-Size Allocator** (:c:type:`cutil_soa_fsa_t`):
    Manages an array of chunks all dedicated to blocks of a specific byte size.
-3. **Small Object Allocator (:c:type:`cutil_soa_t`)**:
+3. **Small Object Allocator** (:c:type:`cutil_soa_t`):
    Manages an array of fixed-size allocators, routing allocations for sizes from 1 up to ``SOA_SMALL_OBJECT_MAX_SIZE`` (32 bytes) to the appropriate fixed-size allocator.
 
 Data Types
