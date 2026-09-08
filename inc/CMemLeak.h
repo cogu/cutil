@@ -2,20 +2,18 @@
 *    No Copyright - this is freeware
 ********************************************************************************
 
-     File:	CMemleak.h
+     File: CMemleak.h
 
      Author:    Xie Wei Bao (UK) Ltd
 
      email:     tech@cup.btinternet.co.uk
 
      Purpose:   Detecting memory leaks
-    
+
 ********************************************************************************
 */
 #ifndef memleak_h
 #define memleak_h
-
-
 
 /* Used for tracking allocations */
 extern void* XWBMalloc (
@@ -49,8 +47,6 @@ extern void  XWBReportFinal (void);
 /* Used for detecting FMW */
 extern void  XWBNoFree (void);
 extern void  XWBPreallocate (const int iInitialAllocations);
-
-
 
 #ifdef MEM_LEAK_CHECK
 void vfree(void*);

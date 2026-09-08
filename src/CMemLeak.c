@@ -2,7 +2,7 @@
 *    No Copyright - this is freeware
 ********************************************************************************
 
-     File:	CMemLeak.c     
+     File: CMemLeak.c
 
      Author:    Xie Wei Bao (UK) Ltd
 
@@ -12,6 +12,7 @@
 
 ********************************************************************************
 */
+
 #include "CMemLeak.h"
 
 /*******************************************************************************
@@ -43,7 +44,7 @@ static const unsigned char xwbUninit = 0x55;
 /* Clean memory - pick a value which will cause the most problems */
 static const unsigned char xwbFreed = 0xAA;
 
-static const char xwbIMW[] = "IMW";	/* Illegal memory write */
+static const char xwbIMW[] = "IMW"; /* Illegal memory write */
 static const char xwbMLK[] = "MLK";     /* Memory leak */
 static const char xwbFNH[] = "FNH";     /* Free Non Heap memory */
 static const char xwbFMW[] = "FMW";     /* Free Memory Write */
@@ -79,11 +80,11 @@ struct XWBList
 
 
 /* Link for storing allocation details */
-static struct XWBList xwbMem = 
+static struct XWBList xwbMem =
 {
-    (struct XWBNode*) 0,
-    (struct XWBNode*) 0,
-    (FILE*) 0,
+    NULL,
+    NULL,
+    NULL,
     0,
     0,
     0,
@@ -146,10 +147,10 @@ static void XWBNodeDelete (struct XWBNode* that)
     /* Unlink */
     if (that->mPrev)
         that->mPrev->mNext = that->mNext;
-	    
+
     if (that->mNext)
         that->mNext->mPrev = that->mPrev;
-	    
+
     free (that);
 }
 /*******************************************************************************
@@ -175,11 +176,11 @@ static void XWBNodeLink (
 )
 {
     that->mPrev = iPrev;
-    if (iPrev != 0)
+    if (iPrev != NULL)
         iPrev->mNext = that;
-        
+
     that->mNext = iNext;
-    if (iNext != 0)
+    if (iNext != NULL)
         iNext->mPrev = that;
 }
 /*******************************************************************************
@@ -226,13 +227,13 @@ static void XWBMemNew (void)
 *******************************************************************************/
 void XWBMemInsert (
     void* iPtr,
-    const unsigned int iSize, 
-    const char* iFile, 
+    const unsigned int iSize,
+    const char* iFile,
     const unsigned int iLine
 )
 {
     struct XWBNode* node;
-    if (xwbMem.mHead == 0)
+    if (xwbMem.mHead == NULL)
     {
         XWBMemNew ();
     }
@@ -252,14 +253,14 @@ void XWBMemInsert (
 *******************************************************************************/
 static struct XWBNode* XWBMemFind (
     void* iPtr,
-    unsigned int* oSize, 
-    const char** oFile, 
+    unsigned int* oSize,
+    const char** oFile,
     unsigned int* oLine
 )
 {
     struct XWBNode* result = 0;
     struct XWBNode* iter;
-    
+
     iter = xwbMem.mTail;
     while ((iter = iter->mPrev) != xwbMem.mHead)
     {
@@ -281,14 +282,14 @@ void* XWBMalloc (unsigned int iSize, const char* iFile, const unsigned int iLine
 {
     register unsigned int usize;
     unsigned char* result;
-    
+
     usize = ((iSize + xwbProtSize) / sizeof (unsigned int) + 1) * sizeof (unsigned int);
     result = malloc (usize);
     memset (result, xwbUninit, usize);
     memcpy (&result[iSize], xwbProtect, xwbProtSize);
     m_totalAlloc += iSize;
     //printf("%s(%d) malloc(%d), total=%u\n",iFile,iLine,iSize,m_totalAlloc);
-    
+
     XWBMemInsert (result, iSize, iFile, iLine);
     return (void*) result;
 }
@@ -302,17 +303,18 @@ void* XWBRealloc (void* iPtr, unsigned int iSize, const char* iFile, const unsig
     struct XWBNode* node;
     unsigned int size, line;
     const char* name;
-    
+
     usize = ((iSize + xwbProtSize) / sizeof (unsigned int) + 1) * sizeof (unsigned int);
     result = realloc (iPtr, usize);
     /* memset (result, xwbUninit, usize); */
     memcpy (&result[iSize], xwbProtect, xwbProtSize);
-    
+    iPtr = result;
+
     /* Update the allocation details */
     name = iFile;
     line = iLine;
     node = XWBMemFind (iPtr, &size, &name, &line);
-    if (node == 0)
+    if (node == NULL)
     {
        XWBMemInsert (result, iSize, iFile, iLine);
     }
@@ -338,14 +340,14 @@ void  XWBFree (void* iPtr, const char* iDesc, const char* iFile, const unsigned 
     struct XWBNode* node;
 
     node = XWBMemFind (iPtr, &size, &file, &line);
-    if (node != 0)
+    if (node != NULL)
     {
         unsigned char* ptr = (unsigned char*) iPtr;
         if (memcmp (&ptr[size], xwbProtect, xwbProtSize) != 0)
         {
             /* Illegal memory write */
             fprintf (xwbMem.mReport, "%s: %s allocated %s: %u\n", xwbIMW, iDesc, file, line);
-            fprintf (xwbMem.mReport, "   : %s deallocated %s: %u\n", iDesc, iFile, iLine); 
+            fprintf (xwbMem.mReport, "   : %s deallocated %s: %u\n", iDesc, iFile, iLine);
         }
         memset (iPtr, xwbFreed, size);
         if (xwbMem.mFree)
@@ -364,7 +366,7 @@ void  XWBFree (void* iPtr, const char* iDesc, const char* iFile, const unsigned 
     {
         /* Free non-heap memory */
         fprintf (xwbMem.mReport, "%s: %s deallocated %s: %u\n", xwbFNH, iDesc, iFile, iLine);
-        
+
         /* Don't do it otherwise it might crash */
     }
 }
@@ -373,7 +375,7 @@ void  XWBFree (void* iPtr, const char* iDesc, const char* iFile, const unsigned 
 *******************************************************************************/
 void XWBNoFree (void)
 {
-    if (xwbMem.mHead == 0)
+    if (xwbMem.mHead == NULL)
     {
         XWBMemNew ();
     }
@@ -388,8 +390,8 @@ void  XWBReport (const char* iTag)
     unsigned char* ptr;
     unsigned int size;
     register unsigned int u;
-    
-    if (xwbMem.mHead == 0)
+
+    if (xwbMem.mHead == NULL)
     {
         XWBMemNew ();
     }
@@ -398,7 +400,7 @@ void  XWBReport (const char* iTag)
         fprintf (xwbMem.mReport, "\n%s\n", iTag);
 
     /* XWBListDump (); */
-    iter = xwbMem.mHead;    
+    iter = xwbMem.mHead;
     while ((iter = iter->mNext) != xwbMem.mTail)
     {
         ptr = (unsigned char*) iter->mPtr;
@@ -418,12 +420,12 @@ void  XWBReport (const char* iTag)
         }
         else
         {
-            fprintf (xwbMem.mReport, "%s: %p %u bytes allocated %s: %u\n", 
+            fprintf (xwbMem.mReport, "%s: %p %u bytes allocated %s: %u\n",
                 xwbMLK, iter->mPtr, iter->mSize, iter->mFile, iter->mLine);
             if (memcmp (&ptr[size], xwbProtect, xwbProtSize) != 0)
             {
                 /* Illegal memory write */
-                fprintf (xwbMem.mReport, "%s: %p allocated %s: %u\n", 
+                fprintf (xwbMem.mReport, "%s: %p allocated %s: %u\n",
                     xwbIMW, ptr, iter->mFile, iter->mLine);
             }
         }
@@ -434,7 +436,7 @@ void  XWBReport (const char* iTag)
         xwbMem.mAllocTotal);
     fprintf (xwbMem.mReport, "Max memory allocation: %ld (%luK)\n",
         xwbMem.mAllocUsed, xwbMem.mAllocUsed / 1024);
-    fprintf (xwbMem.mReport, "Total leak           : %ld\n\n", 
+    fprintf (xwbMem.mReport, "Total leak           : %ld\n\n",
         xwbMem.mAllocCurrent);
 }
 
@@ -458,7 +460,6 @@ char* XWBStrDup (const char* iOrig, const char* iFile, const unsigned int iLine)
     strcpy (result, iOrig);
     return result;
 }
-
 /*******************************************************************************
 * Allocate a number of items of a specified size
 *******************************************************************************/
