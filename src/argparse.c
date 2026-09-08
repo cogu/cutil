@@ -4,28 +4,14 @@
 * \date      2020-04-10
 * \brief     Platform-independent argument parser
 *
-* Copyright (c) 2020 Conny Gustafsson
-* Permission is hereby granted, free of charge, to any person obtaining a copy of
-* this software and associated documentation files (the "Software"), to deal in
-* the Software without restriction, including without limitation the rights to
-* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-* the Software, and to permit persons to whom the Software is furnished to do so,
-* subject to the following conditions:
-
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-* FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-* IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
+* Copyright (c) 2020-2026 Conny Gustafsson
+* SPDX-License-Identifier: MIT
+* See LICENSE in project root for full license terms.
 ******************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 //////////////////////////////////////////////////////////////////////////////
+#include <stddef.h>
 #include "argparse.h"
 #include "adt_str.h"
 
@@ -35,7 +21,6 @@
 #define ARGPARSE_DESTROY_VARS()  adt_str_destroy(&str);\
                                  adt_str_destroy(&short_name);\
                                  adt_str_destroy(&long_name)
-
 
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTION PROTOTYPES
@@ -49,13 +34,13 @@
 // PUBLIC FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
 
-argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_fn *callback)
+argparse_result_t cutil_argparse_exec(int argc, const char **argv, argparse_callback_fn *callback)
 {
-   if ( argc < 2)
+   if (argc < 2)
    {
       return ARGPARSE_SUCCESS; //Nothing to parse
    }
-   if ( (argv != 0) && (callback != 0) )
+   if ((argv != NULL) && (callback != NULL))
    {
       int arg_id;
       adt_str_t short_name;
@@ -75,11 +60,11 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
          unsigned int equal_count = 0u;
          const char *p = argv[arg_id];
          adt_str_clear(&str);
-         for(c= *p; c == '-'; c = *(++p))
+         for (c = *p; c == '-'; c = *(++p))
          {
             minus_count++;
          }
-         for(c = *p; (c != '\0') && (c != '='); c = *(++p))
+         for (c = *p; (c != '\0') && (c != '='); c = *(++p))
          {
             adt_str_push(&str, c);
          }
@@ -89,32 +74,32 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
             p++;
          }
          arg_len = adt_str_length(&str);
-         if ( (arg_len > 0) && (minus_count <= 2u))
+         if ((arg_len > 0) && (minus_count <= 2u))
          {
             argparse_result_t result = ARGPARSE_PARSE_ERROR;
-            switch(minus_count)
+            switch (minus_count)
             {
             case 0u:
                if (has_short_name)
                {
                   has_short_name = false;
-                  result = callback(adt_str_cstr(&short_name), (const char*) 0, adt_str_cstr(&str));
+                  result = callback(adt_str_cstr(&short_name), NULL, adt_str_cstr(&str));
                }
                else if (has_long_name)
                {
                   has_long_name = false;
-                  result = callback((const char*) 0, adt_str_cstr(&long_name), adt_str_cstr(&str));
+                  result = callback(NULL, adt_str_cstr(&long_name), adt_str_cstr(&str));
                }
                else
                {
                   //positional argument
-                  result = callback((const char*) 0, (const char*) 0, adt_str_cstr(&str));
+                  result = callback(NULL, NULL, adt_str_cstr(&str));
                }
                break;
             case 1u:
                if (equal_count == 0)
                {
-                  result = callback(adt_str_cstr(&str), (const char*) 0, (const char*) 0);
+                  result = callback(adt_str_cstr(&str), NULL, NULL);
                   if (result == ARGPARSE_NEED_VALUE)
                   {
                      adt_error_t rc = adt_str_set(&short_name, &str);
@@ -135,11 +120,11 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
                      return ARGPARSE_MEM_ERROR;
                   }
                   adt_str_clear(&str);
-                  for(c = *p; (c != '\0') ; c = *(++p))
+                  for (c = *p; (c != '\0'); c = *(++p))
                   {
                      adt_str_push(&str, c);
                   }
-                  result = callback(adt_str_cstr(&short_name), (const char*) 0, adt_str_cstr(&str));
+                  result = callback(adt_str_cstr(&short_name), NULL, adt_str_cstr(&str));
                }
                else
                {
@@ -147,9 +132,9 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
                }
                break;
             case 2u:
-               if (equal_count==0)
+               if (equal_count == 0)
                {
-                  result = callback((const char*) 0, adt_str_cstr(&str), (const char*) 0);
+                  result = callback(NULL, adt_str_cstr(&str), NULL);
                   if (result == ARGPARSE_NEED_VALUE)
                   {
                      adt_error_t rc = adt_str_set(&long_name, &str);
@@ -170,11 +155,11 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
                      return ARGPARSE_MEM_ERROR;
                   }
                   adt_str_clear(&str);
-                  for(c = *p; (c != '\0') ; c = *(++p))
+                  for (c = *p; (c != '\0'); c = *(++p))
                   {
                      adt_str_push(&str, c);
                   }
-                  result = callback((const char*) 0, adt_str_cstr(&long_name), adt_str_cstr(&str));
+                  result = callback(NULL, adt_str_cstr(&long_name), adt_str_cstr(&str));
                }
                else
                {
@@ -197,16 +182,16 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
             if (has_short_name)
             {
                has_short_name = false;
-               result = callback(adt_str_cstr(&short_name), (const char*) 0, "-");
+               result = callback(adt_str_cstr(&short_name), NULL, "-");
             }
             else if (has_long_name)
             {
                has_long_name = false;
-               result = callback((const char*) 0, adt_str_cstr(&long_name), "-");
+               result = callback(NULL, adt_str_cstr(&long_name), "-");
             }
             else
             {
-               result = callback((const char*) 0, (const char*) 0, "-");
+               result = callback(NULL, NULL, "-");
             }
 
             if (result < 0)
@@ -227,8 +212,7 @@ argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_f
    }
    return ARGPARSE_INVALID_ARGUMENT_ERROR;
 }
+
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
-
-
