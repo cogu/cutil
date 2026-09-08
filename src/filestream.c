@@ -190,7 +190,7 @@ int ifstream_readTextFileFromHandle(ifstream_t *self, FILE *fh)
 
 adt_bytearray_t *ifstream_util_readTextFile(const char *filename)
 {
-   adt_bytearray_t *buf = adt_bytearray_new(0);
+   adt_bytearray_t *buf = adt_bytearray_new();
    if (buf != 0)
    {
       ifstream_handler_t handler;
