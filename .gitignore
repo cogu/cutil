@@ -5,3 +5,8 @@ CMemLeak.txt
 build/
 build-*/
 language.settings.xml
+
+# Sphinx documentation
+/docs/make.bat
+/docs/_build/
+**/.venv/
