@@ -29,6 +29,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
     option(UNIT_TEST "Unit Test Build" OFF)
     option(LEAK_CHECK "Memory Leak Detection" OFF)
+    option(CUTIL_BUILD_EXAMPLE "Build Example Application" OFF)
 endif()
 include(CMakeDependentOption)
 
@@ -164,6 +165,23 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
             LABELS "unit"
         )
     endif()
+
+    if (CUTIL_BUILD_EXAMPLE)
+        set (CUTIL_EXAMPLE_SOURCES
+            example/example_main.c
+            example/argparse_example.c
+            example/filestream_example.c
+            example/fileutil_example.c
+        )
+
+        add_executable(cutil_example ${CUTIL_EXAMPLE_SOURCES})
+        target_link_libraries(cutil_example PRIVATE cutil adt)
+        target_include_directories(cutil_example PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/example"
+        )
+    endif()
 endif()
 ###
+
 

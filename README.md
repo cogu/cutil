@@ -101,6 +101,7 @@ ctest --test-dir build --output-on-failure
 |---|---|---|---|
 | `UNIT_TEST` | `-DUNIT_TEST=ON` | `OFF` | Enables building unit test executable (`cutil_unit`) |
 | `LEAK_CHECK` | `-DLEAK_CHECK=ON` | `OFF` | Enables memory leak detection via CMemLeak |
+| `CUTIL_BUILD_EXAMPLE` | `-DCUTIL_BUILD_EXAMPLE=ON` | `OFF` | Enables building example runner executable (`cutil_example`) |
 | `CUTIL_SANITIZERS` | `-DCUTIL_SANITIZERS="address,undefined"` | `""` | Enables compiler sanitizers (GCC / Clang) |
 | `BYTE_ORDER` | `-DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG]` | `AUTO` | Platform endianness for pack optimizations |
 | `ENABLE_MSVC_ANALYZE` | `-DENABLE_MSVC_ANALYZE=ON` | `OFF` | Enables MSVC static code analysis (`/analyze`) |

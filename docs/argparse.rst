@@ -62,3 +62,13 @@ API Reference
 -------------
 
 .. doxygenfunction:: cutil_argparse_exec
+
+Example
+-------
+
+The following example demonstrates setting up an argument callback and invoking :c:func:`cutil_argparse_exec`:
+
+.. literalinclude:: ../example/argparse_example.c
+   :language: c
+   :lines: 22-110
+
