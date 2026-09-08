@@ -1,12 +1,16 @@
 /*****************************************************************************
-* @file:   		soa_chunk.c
-* @author:		Conny Gustafsson
-* @date:		2011-08-20
-* @brief:		Chunk Allocator ( An adaptation from "Modern C++ Design", chapter 4 )
+* \file      soa_chunk.c
+* \author    Conny Gustafsson
+* \date      2011-08-20
+* \brief     Chunk allocator for small objects
 *
-* Copyright 2011 Conny Gustafsson
-*
+* Copyright (c) 2011-2026 Conny Gustafsson
+* SPDX-License-Identifier: MIT
+* See LICENSE in project root for full license terms.
 ******************************************************************************/
+//////////////////////////////////////////////////////////////////////////////
+// INCLUDES
+//////////////////////////////////////////////////////////////////////////////
 #include "soa_chunk.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -14,49 +18,75 @@
 #include "CMemLeak.h"
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+// PRIVATE CONSTANTS AND DATA TYPES
+//////////////////////////////////////////////////////////////////////////////
 
-void soa_chunk_init( soa_chunk_t *chunk, size_t blockSize, unsigned char numBlocks )
+//////////////////////////////////////////////////////////////////////////////
+// PRIVATE FUNCTION PROTOTYPES
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// PRIVATE VARIABLES
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// PUBLIC FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////
+
+void cutil_soa_chunk_init(cutil_soa_chunk_t *chunk, size_t block_size, unsigned char num_blocks)
 {
-  unsigned char i;
-  unsigned char *p;
-  chunk->blockData = (unsigned char*) malloc(blockSize * numBlocks);
-  if(chunk->blockData == 0) return;
-  chunk->firstBlock = 0;
-  chunk->freeBlocks = numBlocks;
-  for(i=0, p=chunk->blockData; i<numBlocks; p+=blockSize)
-  {
-    *p = ++i;
-  }
-  assert(p==chunk->blockData+(blockSize * numBlocks));
+   unsigned char i;
+   unsigned char *p;
+   chunk->block_data = (unsigned char*) malloc(block_size * num_blocks);
+   if (chunk->block_data == NULL)
+   {
+      return;
+   }
+   chunk->first_block = 0;
+   chunk->free_blocks = num_blocks;
+   for (i = 0, p = chunk->block_data; i < num_blocks; p += block_size)
+   {
+      *p = ++i;
+   }
+   assert(p == chunk->block_data + (block_size * num_blocks));
 }
 
-void soa_chunk_destroy( soa_chunk_t *chunk )
+void cutil_soa_chunk_destroy(cutil_soa_chunk_t *chunk)
 {
-  free(chunk->blockData);
+   free(chunk->block_data);
+   chunk->block_data = NULL;
 }
 
-void *soa_chunk_alloc( soa_chunk_t *chunk,size_t blockSize )
+void *cutil_soa_chunk_alloc(cutil_soa_chunk_t *chunk, size_t block_size)
 {
-  unsigned char *p;
-  if(chunk->freeBlocks == 0) return (void*) 0;  
-  p = chunk->blockData + (chunk->firstBlock * blockSize);
-  chunk->firstBlock = *p; //Index of next available block is stored in byte 0 of the free block
-  chunk->freeBlocks--;
-  return (void*) p;  
+   unsigned char *p;
+   if (chunk->free_blocks == 0)
+   {
+      return NULL;
+   }
+   p = chunk->block_data + (chunk->first_block * block_size);
+   chunk->first_block = *p; // Index of next available block is stored in byte 0 of the free block
+   chunk->free_blocks--;
+   return (void*) p;
 }
 
-void soa_chunk_free( soa_chunk_t *chunk,void *p, size_t blockSize )
+void cutil_soa_chunk_free(cutil_soa_chunk_t *chunk, void *p, size_t block_size)
 {
-  size_t pOffset;
-  size_t newFirstAvailableBlock;
-  unsigned char *pChar = ((unsigned char*)p);
-  assert( pChar >= chunk->blockData); //assert that p belongs to this chunk
-  pOffset = pChar - chunk->blockData;
-  assert(pOffset % blockSize == 0); //assert that p is aligned to the first byte of a block
-  *pChar = chunk->firstBlock;       //store index of first available block in byte 0 of the freed block
-  newFirstAvailableBlock = pOffset / blockSize;
-  assert(newFirstAvailableBlock*blockSize == pOffset); //check for truncation error
-  assert(newFirstAvailableBlock < 256); //check for index out of bounds error  
-  chunk->firstBlock = (unsigned char) newFirstAvailableBlock;
-  chunk->freeBlocks++;
+   size_t p_offset;
+   size_t new_first_available_block;
+   unsigned char *p_char = ((unsigned char*) p);
+   assert(p_char >= chunk->block_data); // Assert that p belongs to this chunk
+   p_offset = p_char - chunk->block_data;
+   assert(p_offset % block_size == 0); // Assert that p is aligned to the first byte of a block
+   *p_char = chunk->first_block; // Store index of first available block in byte 0 of the freed block
+   new_first_available_block = p_offset / block_size;
+   assert(new_first_available_block * block_size == p_offset); // Check for truncation error
+   assert(new_first_available_block < 256); // Check for index out of bounds error
+   chunk->first_block = (unsigned char) new_first_available_block;
+   chunk->free_blocks++;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// PRIVATE FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////
