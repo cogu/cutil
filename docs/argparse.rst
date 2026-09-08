@@ -53,7 +53,10 @@ Callback Function
 
    .. code-block:: c
 
-      argparse_result_t callback(const char *short_name, const char *long_name, const char *value);
+      argparse_result_t callback(
+          const char *short_name,
+          const char *long_name,
+          const char *value);
 
 API Reference
 -------------
