@@ -4,31 +4,22 @@
 * \date      2020-04-10
 * \brief     Platform-independent argument parser
 *
-* Copyright (c) 2020 Conny Gustafsson
-* Permission is hereby granted, free of charge, to any person obtaining a copy of
-* this software and associated documentation files (the "Software"), to deal in
-* the Software without restriction, including without limitation the rights to
-* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-* the Software, and to permit persons to whom the Software is furnished to do so,
-* subject to the following conditions:
-
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-* FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-* IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
+* Copyright (c) 2020-2026 Conny Gustafsson
+* SPDX-License-Identifier: MIT
+* See LICENSE in project root for full license terms.
 ******************************************************************************/
-#ifndef ARGPARSE_H__
-#define ARGPARSE_H__
+#ifndef CUTIL_ARGPARSE_H_
+#define CUTIL_ARGPARSE_H_
 
 //////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 //////////////////////////////////////////////////////////////////////////////
+#include <stddef.h>
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC CONSTANTS AND DATA TYPES
@@ -43,6 +34,8 @@ typedef enum argparse_action_tag
    ARGPARSE_SUCCESS                 =  0,
    ARGPARSE_NEED_VALUE              =  1
 } argparse_result_t;
+
+typedef argparse_result_t cutil_argparse_result_t;
 
 /**
  * # Short name definition:
@@ -89,13 +82,27 @@ typedef enum argparse_action_tag
  * 5.2. This means that the callback does not need to "store" or "remember" the name when returning ARGPARSE_NEED_VALUE.
  * 6. Any error code returned by the callback will be returned as a result back to the caller of the argparse_exec function.
  */
-
 typedef argparse_result_t (argparse_callback_fn)(const char *short_name, const char *long_name, const char *value);
+typedef argparse_callback_fn cutil_argparse_callback_fn;
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTION PROTOTYPES
 //////////////////////////////////////////////////////////////////////////////
-argparse_result_t argparse_exec(int argc, const char **argv, argparse_callback_fn *callback);
 
+/**
+ * \brief Executes argument parsing across an argv array invoking callback for each item.
+ *
+ * \param argc Number of elements in argv.
+ * \param argv Array of argument strings.
+ * \param callback Callback invoked on each parsed argument.
+ * \return ARGPARSE_SUCCESS on success, or negative error code on failure.
+ */
+argparse_result_t cutil_argparse_exec(int argc, const char **argv, argparse_callback_fn *callback);
 
-#endif //ARGPARSE_H__
+#define argparse_exec cutil_argparse_exec
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // CUTIL_ARGPARSE_H_
