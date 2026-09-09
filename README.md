@@ -1,11 +1,11 @@
 ![unit tests](https://github.com/cogu/cutil/workflows/unit%20tests/badge.svg)
-[![Documentation Status](https://readthedocs.org/projects/c-cutil/badge/?version=latest)](https://c-cutil.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/c-util/badge/?version=latest)](https://c-util.readthedocs.io/en/latest/?badge=latest)
 
 # cutil
 
 Utilities for C-based projects.
 
-Online documentation and API reference: **[c-cutil.readthedocs.io](https://c-cutil.readthedocs.io/)**
+Online documentation and API reference: **[c-util.readthedocs.io](https://c-util.readthedocs.io/)**
 
 ## What is it?
 
