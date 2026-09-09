@@ -75,24 +75,26 @@ cmake --build --preset clang-tidy
 
 ### Manual CMake Workflows (Linux and Windows)
 
-For Windows, open a "Native Tools Command Prompt for Visual Studio".
+For Windows, use a "Native tools command prompt" from your Visual Studio installation. It comes with a cmake binary that by default chooses the appropriate compiler version.
 
-#### Configure
+#### Running unit tests
+
+Configure:
 
 ```sh
-cmake -S . -B build -DUNIT_TEST=ON
+cmake -S . -B build-test -GNinja -DUNIT_TEST=ON
 ```
 
-#### Build
+Build:
 
 ```sh
-cmake --build build --target cutil_unit
+cmake --build build-test
 ```
 
-#### Run Unit Tests
+Run test cases:
 
 ```sh
-ctest --test-dir build --output-on-failure
+ctest --test-dir build-test --output-on-failure
 ```
 
 ### CMake Options
