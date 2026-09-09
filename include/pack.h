@@ -17,13 +17,13 @@
 #ifdef USE_PLATFORM_TYPES
 #include "Platform_Types.h"
 #define _PACK_UINT8 uint8
-#define _PACK_UINT16 uint32
+#define _PACK_UINT16 uint16
 #define _PACK_UINT32 uint32
 #define _PACK_UINT64 uint64
 #else
 #include <stdint.h>
 #define _PACK_UINT8 uint8_t
-#define _PACK_UINT16 uint32_t
+#define _PACK_UINT16 uint16_t
 #define _PACK_UINT32 uint32_t
 #define _PACK_UINT64 uint64_t
 #endif
