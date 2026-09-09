@@ -131,6 +131,8 @@ static void test_is_dir_root(CuTest *tc)
 {
 #ifndef _WIN32
    CuAssertTrue(tc, cutil_is_dir("/"));
+#else
+   (void)tc;
 #endif
 }
 
