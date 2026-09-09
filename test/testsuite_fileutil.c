@@ -107,24 +107,24 @@ static void test_is_dir_regular_file(CuTest *tc)
 static void test_is_dir_existing_directory(CuTest *tc)
 {
    const char *dirname = "test_temp_dir";
-   MKDIR(dirname);
+   CuAssertIntEquals(tc, 0, MKDIR(dirname));
 
    CuAssertTrue(tc, cutil_is_dir(dirname));
    CuAssertTrue(tc, cutil_is_dir("."));
 
-   RMDIR(dirname);
+   CuAssertIntEquals(tc, 0, RMDIR(dirname));
 }
 
 static void test_is_dir_trailing_slashes(CuTest *tc)
 {
    const char *dirname = "test_trailing_slash_dir";
-   MKDIR(dirname);
+   CuAssertIntEquals(tc, 0, MKDIR(dirname));
 
    CuAssertTrue(tc, cutil_is_dir("test_trailing_slash_dir/"));
    CuAssertTrue(tc, cutil_is_dir("test_trailing_slash_dir//"));
    CuAssertTrue(tc, cutil_is_dir("test_trailing_slash_dir///"));
 
-   RMDIR(dirname);
+   CuAssertIntEquals(tc, 0, RMDIR(dirname));
 }
 
 static void test_is_dir_root(CuTest *tc)

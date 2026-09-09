@@ -38,8 +38,8 @@ static void test_create_two_chunks(CuTest* tc);
 static void test_free_3_at_beginning_then_allocate_5_more(CuTest* tc);
 
 // Helper functions
-static void do_1_byte_test(CuTest* tc, int32_t num_elements);
-static bool check_if_already_allocated(void **array, int32_t array_len, void *ptr);
+static void do_1_byte_test(CuTest* tc, size_t num_elements);
+static bool check_if_already_allocated(void **array, size_t array_len, void *ptr);
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTIONS
@@ -172,15 +172,14 @@ static void test_free_3_at_beginning_then_allocate_5_more(CuTest* tc)
 
 // Helper functions
 
-static void do_1_byte_test(CuTest* tc, int32_t num_elements)
+static void do_1_byte_test(CuTest* tc, size_t num_elements)
 {
    cutil_soa_fsa_t fsa1;
-   int32_t num_allocated;
-   int32_t i;
-   int32_t num_half = num_elements / 2;
-   void** allocated = (void**) malloc(num_elements * sizeof(void*));
+   size_t num_allocated;
+   size_t i;
+   size_t num_half = num_elements / 2;
+   void** allocated = calloc(num_elements, sizeof(*allocated));
    CuAssertPtrNotNull(tc, allocated);
-   memset(&allocated[0], 0, num_elements * sizeof(void*));
    cutil_soa_fsa_init(&fsa1, sizeof(uint8_t), SOA_DEFAULT_NUM_BLOCKS);
    for (num_allocated = 0; num_allocated < num_elements; num_allocated++)
    {
@@ -227,9 +226,9 @@ static void do_1_byte_test(CuTest* tc, int32_t num_elements)
    cutil_soa_fsa_destroy(&fsa1);
 }
 
-static bool check_if_already_allocated(void **array, int32_t array_len, void *ptr)
+static bool check_if_already_allocated(void **array, size_t array_len, void *ptr)
 {
-   int32_t i;
+   size_t i;
    for (i = 0; i < array_len; i++)
    {
       if (array[i] == ptr)
