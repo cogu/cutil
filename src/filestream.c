@@ -190,19 +190,23 @@ int cutil_ifstream_read_text_file_from_handle(cutil_ifstream_t *self, FILE *fh)
          {
             self->handler.open(self->handler.arg);
          }
-
          while (fgets(buf, IFSTREAM_BLOCK_SIZE, fh) != NULL)
          {
             size_t len = strlen(buf);
             assert(len > 0);
-            //dos2unix file ending
-            if ((len >= 2) && buf[len - 2] == '\r')
+            if(len > IFSTREAM_BLOCK_SIZE)
+            {
+               free(chunk);
+               free(buf);
+               return -1;
+            }            
+            if ((len >= 2) && buf[len - 2] == '\r') //dos file ending?
             {
                len--;
                buf[len - 1] = '\n';
             }
             if (len + chunk_len < IFSTREAM_BLOCK_SIZE)
-            {
+            {               
                memcpy(&chunk[chunk_len], buf, len); // NOLINT(bugprone-not-null-terminated-result)
                chunk_len += (uint32_t) len;
             }
