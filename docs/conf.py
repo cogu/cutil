@@ -12,7 +12,7 @@ import subprocess
 project = 'CUTIL'
 copyright = '2026, Conny Gustafsson'
 author = 'Conny Gustafsson'
-release = '1.3.0'
+release = '1.3.1'
 
 # -- General configuration ---------------------------------------------------
 
