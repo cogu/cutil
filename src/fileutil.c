@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////////////////////////
 #include <sys/stat.h>
 #include <string.h>
+#include <stdio.h>
 #include "fileutil.h"
 #ifdef MEM_LEAK_CHECK
 #include "CMemLeak.h"
@@ -28,6 +29,9 @@
 #ifdef _WIN32
 # ifndef S_ISDIR
 #  define S_ISDIR(mode) (((mode) & _S_IFDIR) != 0)
+# endif
+# ifndef S_ISREG
+#  define S_ISREG(mode) (((mode) & _S_IFREG) != 0)
 # endif
 #endif
 
@@ -121,4 +125,136 @@ adt_str_t *cutil_path_join(const char *dir, const char *filename)
    }
 
    return retval;
+}
+
+bool cutil_file_exists(const char *path)
+{
+   if (path == NULL)
+   {
+      return false;
+   }
+
+   size_t len = strlen(path);
+   if (len == 0 || len >= CUTIL_PATH_MAX)
+   {
+      return false;
+   }
+
+   struct stat st;
+   if (stat(path, &st) == 0)
+   {
+      if (S_ISREG(st.st_mode))
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+adt_str_t *cutil_path_append_extension(const char *filepath, const char *ext)
+{
+   if (filepath == NULL)
+   {
+      return NULL;
+   }
+   adt_str_t *result = adt_str_new_cstr(filepath);
+   if (result == NULL)
+   {
+      return NULL;
+   }
+   if (ext != NULL && *ext != '\0')
+   {
+      if (*ext != '.')
+      {
+         adt_str_push(result, '.');
+      }
+      adt_str_append_cstr(result, ext);
+   }
+   return result;
+}
+
+adt_str_t *cutil_path_replace_extension(const char *filepath, const char *new_ext)
+{
+   if (filepath == NULL)
+   {
+      return NULL;
+   }
+   const char *last_dot = strrchr(filepath, '.');
+   const char *last_sep = strrchr(filepath, '/');
+#ifdef _WIN32
+   const char *last_bs = strrchr(filepath, '\\');
+   if (last_bs != NULL && (last_sep == NULL || last_bs > last_sep))
+   {
+      last_sep = last_bs;
+   }
+#endif
+   if (last_dot != NULL && (last_sep == NULL || last_dot > last_sep))
+   {
+      size_t base_len = (size_t)(last_dot - filepath);
+      adt_str_t *result = adt_str_new_bstr((const uint8_t*)filepath, (const uint8_t*)filepath + base_len);
+      if (result == NULL)
+      {
+         return NULL;
+      }
+      if (new_ext != NULL && *new_ext != '\0')
+      {
+         if (*new_ext != '.')
+         {
+            adt_str_push(result, '.');
+         }
+         adt_str_append_cstr(result, new_ext);
+      }
+      return result;
+   }
+   else
+   {
+      return cutil_path_append_extension(filepath, new_ext);
+   }
+}
+
+int cutil_read_binary_file(const char *path, uint8_t *buf, size_t buf_size, size_t *bytes_read)
+{
+   if (path == NULL || buf == NULL || buf_size == 0)
+   {
+      return -1;
+   }
+   FILE *fh = fopen(path, "rb");
+   if (fh == NULL)
+   {
+      return -1;
+   }
+   size_t n = fread(buf, 1, buf_size, fh);
+   fclose(fh);
+   if (bytes_read != NULL)
+   {
+      *bytes_read = n;
+   }
+   return 0;
+}
+
+int cutil_write_binary_file(const char *path, const uint8_t *buf, size_t size)
+{
+   if (path == NULL || (buf == NULL && size > 0))
+   {
+      return -1;
+   }
+   FILE *fh = fopen(path, "wb");
+   if (fh == NULL)
+   {
+      return -1;
+   }
+   if (size > 0)
+   {
+      size_t written = fwrite(buf, 1, size, fh);
+      fclose(fh);
+      if (written != size)
+      {
+         return -1;
+      }
+   }
+   else
+   {
+      fclose(fh);
+   }
+   return 0;
 }
