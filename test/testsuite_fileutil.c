@@ -55,6 +55,11 @@ static void test_file_exists_basic(CuTest *tc);
 static void test_path_append_extension(CuTest *tc);
 static void test_path_replace_extension(CuTest *tc);
 static void test_read_write_binary_file(CuTest *tc);
+static void test_mkdir_p_nested_and_existing(CuTest *tc);
+static void test_dir_for_each_lists_entries_and_stops(CuTest *tc);
+static void test_read_regular_file_exact_mismatch_and_symlink(CuTest *tc);
+static void test_file_replace_atomic_and_fsync(CuTest *tc);
+static void test_file_mtime_set_and_touch(CuTest *tc);
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTIONS
@@ -83,6 +88,11 @@ CuSuite* testsuite_fileutil(void)
    SUITE_ADD_TEST(suite, test_path_append_extension);
    SUITE_ADD_TEST(suite, test_path_replace_extension);
    SUITE_ADD_TEST(suite, test_read_write_binary_file);
+   SUITE_ADD_TEST(suite, test_mkdir_p_nested_and_existing);
+   SUITE_ADD_TEST(suite, test_dir_for_each_lists_entries_and_stops);
+   SUITE_ADD_TEST(suite, test_read_regular_file_exact_mismatch_and_symlink);
+   SUITE_ADD_TEST(suite, test_file_replace_atomic_and_fsync);
+   SUITE_ADD_TEST(suite, test_file_mtime_set_and_touch);
 
    return suite;
 }
@@ -334,4 +344,178 @@ static void test_read_write_binary_file(CuTest *tc)
    // Reading non-existent file returns error
    rc = cutil_read_binary_file("non_existent_file_98765.tmp", read_buf, sizeof(read_buf), NULL);
    CuAssertIntEquals(tc, -1, rc);
+}
+
+static void test_mkdir_p_nested_and_existing(CuTest *tc)
+{
+   CuAssertIntEquals(tc, -1, cutil_mkdir_p(NULL));
+   CuAssertIntEquals(tc, -1, cutil_mkdir_p(""));
+
+   const char *nested = "test_mkdir_p_root/a/b/c";
+   CuAssertIntEquals(tc, 0, cutil_mkdir_p(nested));
+   CuAssertTrue(tc, cutil_is_dir(nested));
+   // Idempotent when already existing
+   CuAssertIntEquals(tc, 0, cutil_mkdir_p(nested));
+
+   // Fails if target path is an existing regular file
+   const char *file_path = "test_mkdir_p_root/a/regular.txt";
+   CuAssertIntEquals(tc, 0, cutil_write_binary_file(file_path, (const uint8_t *)"x", 1u));
+   CuAssertIntEquals(tc, -1, cutil_mkdir_p(file_path));
+
+   remove(file_path);
+   RMDIR("test_mkdir_p_root/a/b/c");
+   RMDIR("test_mkdir_p_root/a/b");
+   RMDIR("test_mkdir_p_root/a");
+   RMDIR("test_mkdir_p_root");
+}
+
+typedef struct dir_collect_ctx_tag
+{
+   int count;
+   int reg_count;
+   int dir_count;
+   bool saw_alpha;
+   bool saw_beta;
+   bool saw_sub;
+   int stop_after;
+} dir_collect_ctx_t;
+
+static bool on_dir_entry(void *arg, const cutil_dir_entry_t *entry)
+{
+   dir_collect_ctx_t *ctx = (dir_collect_ctx_t *)arg;
+   ctx->count++;
+   if (entry->is_reg)
+   {
+      ctx->reg_count++;
+   }
+   if (entry->is_dir)
+   {
+      ctx->dir_count++;
+   }
+   if (strcmp(entry->name, "alpha.txt") == 0)
+   {
+      ctx->saw_alpha = (entry->is_reg && entry->size == 5u);
+   }
+   else if (strcmp(entry->name, "beta.txt") == 0)
+   {
+      ctx->saw_beta = (entry->is_reg && entry->size == 3u);
+   }
+   else if (strcmp(entry->name, "sub") == 0)
+   {
+      ctx->saw_sub = entry->is_dir;
+   }
+   if (ctx->stop_after > 0 && ctx->count >= ctx->stop_after)
+   {
+      return false;
+   }
+   return true;
+}
+
+static void test_dir_for_each_lists_entries_and_stops(CuTest *tc)
+{
+   const char *root = "test_dir_for_each_root";
+   CuAssertIntEquals(tc, 0, cutil_mkdir_p("test_dir_for_each_root/sub"));
+   CuAssertIntEquals(tc, 0, cutil_write_binary_file("test_dir_for_each_root/alpha.txt", (const uint8_t *)"hello", 5u));
+   CuAssertIntEquals(tc, 0, cutil_write_binary_file("test_dir_for_each_root/beta.txt", (const uint8_t *)"abc", 3u));
+
+   dir_collect_ctx_t ctx;
+   memset(&ctx, 0, sizeof(ctx));
+   CuAssertIntEquals(tc, 0, cutil_dir_for_each(root, on_dir_entry, &ctx));
+   CuAssertIntEquals(tc, 3, ctx.count);
+   CuAssertIntEquals(tc, 2, ctx.reg_count);
+   CuAssertIntEquals(tc, 1, ctx.dir_count);
+   CuAssertTrue(tc, ctx.saw_alpha);
+   CuAssertTrue(tc, ctx.saw_beta);
+   CuAssertTrue(tc, ctx.saw_sub);
+
+   // Early stop when callback returns false
+   memset(&ctx, 0, sizeof(ctx));
+   ctx.stop_after = 1;
+   CuAssertIntEquals(tc, 0, cutil_dir_for_each(root, on_dir_entry, &ctx));
+   CuAssertIntEquals(tc, 1, ctx.count);
+
+   // Missing directory returns -1
+   CuAssertIntEquals(tc, -1, cutil_dir_for_each("no_such_dir_xyz_999", on_dir_entry, &ctx));
+
+   remove("test_dir_for_each_root/alpha.txt");
+   remove("test_dir_for_each_root/beta.txt");
+   RMDIR("test_dir_for_each_root/sub");
+   RMDIR(root);
+}
+
+static void test_read_regular_file_exact_mismatch_and_symlink(CuTest *tc)
+{
+   const char *path = "test_read_reg.tmp";
+   const uint8_t payload[] = "abcdef";
+   CuAssertIntEquals(tc, 0, cutil_write_binary_file(path, payload, 6u));
+
+   uint8_t buf[16];
+   size_t actual = 0u;
+   int64_t mtime = 0;
+   CuAssertIntEquals(tc, 0, cutil_read_regular_file(path, buf, 6u, &actual, &mtime));
+   CuAssertIntEquals(tc, 6, (int)actual);
+   CuAssertTrue(tc, mtime > 0);
+   CuAssertIntEquals(tc, 0, memcmp(buf, payload, 6u));
+
+   // Size mismatch returns -2 and reports actual size
+   actual = 0u;
+   CuAssertIntEquals(tc, -2, cutil_read_regular_file(path, buf, 4u, &actual, NULL));
+   CuAssertIntEquals(tc, 6, (int)actual);
+
+#ifndef _WIN32
+   const char *link_path = "test_read_reg_link.tmp";
+   remove(link_path);
+   if (symlink(path, link_path) == 0)
+   {
+      CuAssertIntEquals(tc, -1, cutil_read_regular_file(link_path, buf, 6u, NULL, NULL));
+      remove(link_path);
+   }
+#endif
+
+   remove(path);
+}
+
+static void test_file_replace_atomic_and_fsync(CuTest *tc)
+{
+   const char *tmp_path = "test_atomic_src.tmp";
+   const char *dst_path = "test_atomic_dst.tmp";
+
+   CuAssertIntEquals(tc, 0, cutil_write_binary_file(dst_path, (const uint8_t *)"old", 3u));
+
+   FILE *fh = fopen(tmp_path, "wb");
+   CuAssertPtrNotNull(tc, fh);
+   CuAssertIntEquals(tc, 4, (int)fwrite("new!", 1u, 4u, fh));
+   CuAssertIntEquals(tc, 0, cutil_fsync_file(fh));
+   fclose(fh);
+
+   CuAssertIntEquals(tc, 0, cutil_file_replace_atomic(tmp_path, dst_path));
+   CuAssertTrue(tc, !cutil_file_exists(tmp_path));
+   CuAssertTrue(tc, cutil_file_exists(dst_path));
+
+   uint8_t buf[8];
+   CuAssertIntEquals(tc, 0, cutil_read_regular_file(dst_path, buf, 4u, NULL, NULL));
+   CuAssertIntEquals(tc, 0, memcmp(buf, "new!", 4u));
+
+   remove(dst_path);
+}
+
+static void test_file_mtime_set_and_touch(CuTest *tc)
+{
+   const char *path = "test_mtime.tmp";
+   CuAssertIntEquals(tc, 0, cutil_write_binary_file(path, (const uint8_t *)"123", 3u));
+
+   int64_t old_ts = 1600000000LL;
+   CuAssertIntEquals(tc, 0, cutil_file_set_mtime(path, old_ts));
+
+   uint8_t buf[4];
+   int64_t mtime = 0;
+   CuAssertIntEquals(tc, 0, cutil_read_regular_file(path, buf, 3u, NULL, &mtime));
+   CuAssertTrue(tc, mtime == old_ts);
+
+   CuAssertIntEquals(tc, 0, cutil_file_touch_mtime(path));
+   mtime = 0;
+   CuAssertIntEquals(tc, 0, cutil_read_regular_file(path, buf, 3u, NULL, &mtime));
+   CuAssertTrue(tc, mtime > old_ts);
+
+   remove(path);
 }

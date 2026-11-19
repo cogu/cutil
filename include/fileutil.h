@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "adt_str.h"
 
 #ifdef __cplusplus
@@ -26,6 +27,17 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC CONSTANTS AND DATA TYPES
 //////////////////////////////////////////////////////////////////////////////
+typedef struct cutil_dir_entry_tag
+{
+   const char *name;
+   uint64_t size;
+   int64_t mtime_sec;
+   bool is_reg;
+   bool is_dir;
+   bool is_symlink;
+} cutil_dir_entry_t;
+
+typedef bool (cutil_dir_entry_cb)(void *arg, const cutil_dir_entry_t *entry);
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTION PROTOTYPES
@@ -101,6 +113,76 @@ int cutil_read_binary_file(const char *path, uint8_t *buf, size_t buf_size, size
  * \return 0 on success, -1 on error.
  */
 int cutil_write_binary_file(const char *path, const uint8_t *buf, size_t size);
+
+/**
+ * \brief Recursively creates directories for the given path (like `mkdir -p`).
+ *
+ * \param path Directory path to create.
+ * \return 0 if the directory was created or already exists, -1 on error (preserving errno).
+ */
+int cutil_mkdir_p(const char *path);
+
+/**
+ * \brief Iterates over all entries in a directory (excluding "." and "..").
+ *
+ * Does not follow symbolic links when inspecting entry metadata.
+ * Returning false from the callback stops iteration early with return code 0.
+ *
+ * \param dir_path Path to the directory.
+ * \param cb Callback invoked for each entry.
+ * \param arg User context passed as the first argument to cb.
+ * \return 0 on success, -1 on error (preserving errno).
+ */
+int cutil_dir_for_each(const char *dir_path, cutil_dir_entry_cb cb, void *arg);
+
+/**
+ * \brief Reads an exact number of bytes from a regular file without following symlinks.
+ *
+ * \param path Path to the file.
+ * \param buf Destination buffer of at least expected_size bytes (may be NULL when expected_size == 0).
+ * \param expected_size Exact expected byte size of the file.
+ * \param out_actual_size Optional output pointer for the actual regular file size.
+ * \param out_mtime_sec Optional output pointer for the file's modification time (Unix epoch seconds).
+ * \return 0 on exact match and full read;
+ *         -2 if the file is a regular file whose size differs from expected_size;
+ *         -1 on open, symlink, non-regular file, or I/O error (preserving errno).
+ */
+int cutil_read_regular_file(
+   const char *path, uint8_t *buf, size_t expected_size, size_t *out_actual_size, int64_t *out_mtime_sec);
+
+/**
+ * \brief Atomically replaces dst_path with src_path (must reside on the same filesystem).
+ *
+ * \param src_path Source file path.
+ * \param dst_path Destination file path.
+ * \return 0 on success, -1 on error (preserving errno).
+ */
+int cutil_file_replace_atomic(const char *src_path, const char *dst_path);
+
+/**
+ * \brief Updates a file's modification time to the current time without following symlinks.
+ *
+ * \param path File path.
+ * \return 0 on success, -1 on error (preserving errno).
+ */
+int cutil_file_touch_mtime(const char *path);
+
+/**
+ * \brief Sets a file's modification time to the given Unix epoch seconds without following symlinks.
+ *
+ * \param path File path.
+ * \param mtime_sec Modification time in Unix epoch seconds.
+ * \return 0 on success, -1 on error (preserving errno).
+ */
+int cutil_file_set_mtime(const char *path, int64_t mtime_sec);
+
+/**
+ * \brief Flushes C stdio buffers and syncs the underlying OS file descriptor to storage.
+ *
+ * \param fh Open FILE handle.
+ * \return 0 on success, -1 on error (preserving errno).
+ */
+int cutil_fsync_file(FILE *fh);
 
 #ifdef __cplusplus
 }
