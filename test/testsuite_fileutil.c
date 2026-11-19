@@ -60,6 +60,7 @@ static void test_dir_for_each_lists_entries_and_stops(CuTest *tc);
 static void test_read_regular_file_exact_mismatch_and_symlink(CuTest *tc);
 static void test_file_replace_atomic_and_fsync(CuTest *tc);
 static void test_file_mtime_set_and_touch(CuTest *tc);
+static void test_file_lock_exclusive_and_release(CuTest *tc);
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTIONS
@@ -93,6 +94,7 @@ CuSuite* testsuite_fileutil(void)
    SUITE_ADD_TEST(suite, test_read_regular_file_exact_mismatch_and_symlink);
    SUITE_ADD_TEST(suite, test_file_replace_atomic_and_fsync);
    SUITE_ADD_TEST(suite, test_file_mtime_set_and_touch);
+   SUITE_ADD_TEST(suite, test_file_lock_exclusive_and_release);
 
    return suite;
 }
@@ -518,4 +520,40 @@ static void test_file_mtime_set_and_touch(CuTest *tc)
    CuAssertTrue(tc, mtime > old_ts);
 
    remove(path);
+}
+
+static void test_file_lock_exclusive_and_release(CuTest *tc)
+{
+   const char *lock_path = "test_file_lock.lock";
+   remove(lock_path);
+
+   cutil_file_lock_t lock1;
+   cutil_file_lock_t lock2;
+   cutil_file_lock_init(&lock1);
+   cutil_file_lock_init(&lock2);
+
+   CuAssertTrue(tc, !cutil_file_lock_is_held(&lock1));
+   CuAssertIntEquals(tc, 0, cutil_file_lock_try_acquire(&lock1, lock_path));
+   CuAssertTrue(tc, cutil_file_lock_is_held(&lock1));
+
+   // Second acquire on the same lock path must return 1 (already locked)
+   CuAssertIntEquals(tc, 1, cutil_file_lock_try_acquire(&lock2, lock_path));
+   CuAssertTrue(tc, !cutil_file_lock_is_held(&lock2));
+
+   // Lock file should contain our numeric PID
+   uint8_t pid_buf[32];
+   size_t bytes_read = 0u;
+   CuAssertIntEquals(tc, 0, cutil_read_binary_file(lock_path, pid_buf, sizeof(pid_buf) - 1u, &bytes_read));
+   CuAssertTrue(tc, bytes_read > 0u);
+   pid_buf[bytes_read] = '\0';
+   CuAssertTrue(tc, strtol((const char *)pid_buf, NULL, 10) > 0);
+
+   // After release, lock2 can acquire cleanly
+   cutil_file_lock_release(&lock1);
+   CuAssertTrue(tc, !cutil_file_lock_is_held(&lock1));
+   CuAssertIntEquals(tc, 0, cutil_file_lock_try_acquire(&lock2, lock_path));
+   CuAssertTrue(tc, cutil_file_lock_is_held(&lock2));
+
+   cutil_file_lock_release(&lock2);
+   remove(lock_path);
 }

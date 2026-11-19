@@ -39,6 +39,16 @@ typedef struct cutil_dir_entry_tag
 
 typedef bool (cutil_dir_entry_cb)(void *arg, const cutil_dir_entry_t *entry);
 
+typedef struct cutil_file_lock_tag
+{
+#ifdef _WIN32
+   void *handle;
+#else
+   int fd;
+#endif
+   bool locked;
+} cutil_file_lock_t;
+
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTION PROTOTYPES
 //////////////////////////////////////////////////////////////////////////////
@@ -183,6 +193,36 @@ int cutil_file_set_mtime(const char *path, int64_t mtime_sec);
  * \return 0 on success, -1 on error (preserving errno).
  */
 int cutil_fsync_file(FILE *fh);
+
+/**
+ * \brief Initializes a cutil_file_lock_t structure to the unlocked state.
+ */
+void cutil_file_lock_init(cutil_file_lock_t *lock);
+
+/**
+ * \brief Attempts to acquire an exclusive non-blocking OS lock on the given file path.
+ *
+ * Uses flock(LOCK_EX | LOCK_NB) on POSIX and LockFileEx(LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY)
+ * on Windows. The OS kernel automatically releases the lock if the owning process exits or crashes.
+ * On success, writes the current process ID into the lock file for diagnostics.
+ *
+ * \param lock Pointer to an initialized cutil_file_lock_t.
+ * \param path Path to the lock file (created if it does not exist).
+ * \return 0 if the exclusive lock was acquired;
+ *         1 if the lock is already held by another handle/process;
+ *        -1 on open or OS error (preserving errno).
+ */
+int cutil_file_lock_try_acquire(cutil_file_lock_t *lock, const char *path);
+
+/**
+ * \brief Releases a held OS file lock and closes its handle without unlinking the lock file.
+ */
+void cutil_file_lock_release(cutil_file_lock_t *lock);
+
+/**
+ * \brief Returns true if the lock handle currently holds an active lock.
+ */
+bool cutil_file_lock_is_held(const cutil_file_lock_t *lock);
 
 #ifdef __cplusplus
 }

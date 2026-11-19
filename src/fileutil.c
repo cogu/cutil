@@ -15,6 +15,9 @@
 # ifndef _POSIX_C_SOURCE
 #  define _POSIX_C_SOURCE 200809L
 # endif
+# ifndef _DEFAULT_SOURCE
+#  define _DEFAULT_SOURCE
+# endif
 #endif
 #include <errno.h>
 #include <sys/stat.h>
@@ -27,10 +30,12 @@
 # include <Windows.h>
 # include <direct.h>
 # include <io.h>
+# include <process.h>
 # include <sys/utime.h>
 #else
 # include <dirent.h>
 # include <fcntl.h>
+# include <sys/file.h>
 # include <time.h>
 # include <unistd.h>
 #endif
@@ -700,4 +705,146 @@ int cutil_fsync_file(FILE *fh)
    }
    return fsync(fd);
 #endif
+}
+
+void cutil_file_lock_init(cutil_file_lock_t *lock)
+{
+   if (lock != NULL)
+   {
+#ifdef _WIN32
+      lock->handle = NULL;
+#else
+      lock->fd = -1;
+#endif
+      lock->locked = false;
+   }
+}
+
+int cutil_file_lock_try_acquire(cutil_file_lock_t *lock, const char *path)
+{
+   if (lock == NULL || path == NULL || path[0] == '\0')
+   {
+      errno = EINVAL;
+      return -1;
+   }
+   cutil_file_lock_release(lock);
+
+#ifdef _WIN32
+   HANDLE h = CreateFileA(
+      path,
+      GENERIC_READ | GENERIC_WRITE,
+      FILE_SHARE_READ | FILE_SHARE_WRITE,
+      NULL,
+      OPEN_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL,
+      NULL);
+   if (h == INVALID_HANDLE_VALUE)
+   {
+      DWORD err = GetLastError();
+      errno = (err == ERROR_ACCESS_DENIED) ? EACCES : EIO;
+      return -1;
+   }
+
+   OVERLAPPED ov;
+   memset(&ov, 0, sizeof(ov));
+   if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 1, 0, &ov))
+   {
+      DWORD err = GetLastError();
+      CloseHandle(h);
+      if (err == ERROR_LOCK_VIOLATION)
+      {
+         errno = EWOULDBLOCK;
+         return 1;
+      }
+      errno = (err == ERROR_ACCESS_DENIED) ? EACCES : EIO;
+      return -1;
+   }
+
+   char pid_buf[32];
+   int pid_len = snprintf(pid_buf, sizeof(pid_buf), "%lu\n", (unsigned long)_getpid());
+   if (pid_len > 0)
+   {
+      SetFilePointer(h, 0, NULL, FILE_BEGIN);
+      SetEndOfFile(h);
+      DWORD written = 0;
+      (void)WriteFile(h, pid_buf, (DWORD)pid_len, &written, NULL);
+   }
+
+   lock->handle = (void *)h;
+   lock->locked = true;
+   return 0;
+#else
+   int flags = O_CREAT | O_RDWR;
+# ifdef O_CLOEXEC
+   flags |= O_CLOEXEC;
+# endif
+# ifdef O_NOFOLLOW
+   flags |= O_NOFOLLOW;
+# endif
+   int fd = open(path, flags, 0644);
+   if (fd < 0)
+   {
+      return -1;
+   }
+   if (flock(fd, LOCK_EX | LOCK_NB) != 0)
+   {
+      int saved_errno = errno;
+      close(fd);
+      errno = saved_errno;
+      if (saved_errno == EWOULDBLOCK || saved_errno == EAGAIN)
+      {
+         return 1;
+      }
+      return -1;
+   }
+
+   char pid_buf[32];
+   int pid_len = snprintf(pid_buf, sizeof(pid_buf), "%lu\n", (unsigned long)getpid());
+   if (pid_len > 0 && ftruncate(fd, 0) == 0)
+   {
+      (void)lseek(fd, 0, SEEK_SET);
+      ssize_t written = write(fd, pid_buf, (size_t)pid_len);
+      (void)written;
+   }
+
+   lock->fd = fd;
+   lock->locked = true;
+   return 0;
+#endif
+}
+
+void cutil_file_lock_release(cutil_file_lock_t *lock)
+{
+   if (lock != NULL)
+   {
+#ifdef _WIN32
+      if (lock->handle != NULL)
+      {
+         if (lock->locked)
+         {
+            OVERLAPPED ov;
+            memset(&ov, 0, sizeof(ov));
+            UnlockFileEx((HANDLE)lock->handle, 0, 1, 0, &ov);
+         }
+         CloseHandle((HANDLE)lock->handle);
+         lock->handle = NULL;
+      }
+#else
+      if (lock->fd >= 0)
+      {
+         if (lock->locked)
+         {
+            (void)flock(lock->fd, LOCK_UN);
+         }
+         close(lock->fd);
+         lock->fd = -1;
+      }
+#endif
+      lock->locked = false;
+   }
+}
+
+bool cutil_file_lock_is_held(const cutil_file_lock_t *lock)
+{
+   return (lock != NULL) && lock->locked;
 }
