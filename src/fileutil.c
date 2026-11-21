@@ -747,6 +747,9 @@ int cutil_file_lock_try_acquire(cutil_file_lock_t *lock, const char *path)
 
    OVERLAPPED ov;
    memset(&ov, 0, sizeof(ov));
+   /* Lock a 1-byte sentinel beyond EOF so the PID text at offset 0 remains readable on Windows. */
+   ov.Offset = 0x00010000u;
+   ov.OffsetHigh = 0u;
    if (!LockFileEx(h, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 1, 0, &ov))
    {
       DWORD err = GetLastError();
@@ -824,6 +827,8 @@ void cutil_file_lock_release(cutil_file_lock_t *lock)
          {
             OVERLAPPED ov;
             memset(&ov, 0, sizeof(ov));
+            ov.Offset = 0x00010000u;
+            ov.OffsetHigh = 0u;
             UnlockFileEx((HANDLE)lock->handle, 0, 1, 0, &ov);
          }
          CloseHandle((HANDLE)lock->handle);
