@@ -326,21 +326,21 @@ int cutil_mkdir_p(const char *path)
       return 0;
    }
 
-   char buf[CUTIL_PATH_MAX];
-   memcpy(buf, path, len + 1);
-
    // Strip trailing slashes (preserve root "/" or "C:\")
-   while (len > 1 && (buf[len - 1] == '/' || buf[len - 1] == '\\'))
+   while (len > 1 && (path[len - 1] == '/' || path[len - 1] == '\\'))
    {
 #ifdef _WIN32
-      if (len == 3 && buf[1] == ':')
+      if (len == 3 && path[1] == ':')
       {
          break;
       }
 #endif
-      buf[len - 1] = '\0';
       len--;
    }
+
+   char buf[CUTIL_PATH_MAX];
+   memcpy(buf, path, len);
+   buf[len] = '\0';
 
    size_t start_idx = 1;
 #ifdef _WIN32
