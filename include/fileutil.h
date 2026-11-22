@@ -27,26 +27,42 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC CONSTANTS AND DATA TYPES
 //////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief Metadata for a single directory entry passed to ::cutil_dir_entry_cb.
+ */
 typedef struct cutil_dir_entry_tag
 {
-   const char *name;
-   uint64_t size;
-   int64_t mtime_sec;
-   bool is_reg;
-   bool is_dir;
-   bool is_symlink;
+   const char *name;  /**< Entry name relative to the iterated directory (null-terminated). */
+   uint64_t size;     /**< File size in bytes (0 for non-regular entries where unavailable). */
+   int64_t mtime_sec; /**< Last modification time in Unix epoch seconds. */
+   bool is_reg;       /**< True if the entry is a regular file. */
+   bool is_dir;       /**< True if the entry is a directory. */
+   bool is_symlink;   /**< True if the entry is a symbolic link (POSIX) or reparse point (Windows). */
 } cutil_dir_entry_t;
 
+/**
+ * \brief Callback invoked for each entry during ::cutil_dir_for_each.
+ *
+ * \param arg User context pointer passed to ::cutil_dir_for_each.
+ * \param entry Metadata for the current directory entry.
+ * \return true to continue iterating, false to stop early.
+ */
 typedef bool (cutil_dir_entry_cb)(void *arg, const cutil_dir_entry_t *entry);
 
+/**
+ * \brief Cross-platform exclusive OS file lock handle.
+ *
+ * Must be initialized with ::cutil_file_lock_init before first use and
+ * released with ::cutil_file_lock_release when no longer needed.
+ */
 typedef struct cutil_file_lock_tag
 {
 #ifdef _WIN32
-   void *handle;
+   void *handle; /**< Windows file handle (INVALID_HANDLE_VALUE when unlocked). */
 #else
-   int fd;
+   int fd;       /**< POSIX file descriptor (-1 when unlocked). */
 #endif
-   bool locked;
+   bool locked;  /**< True while an exclusive OS lock is actively held. */
 } cutil_file_lock_t;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -196,6 +212,8 @@ int cutil_fsync_file(FILE *fh);
 
 /**
  * \brief Initializes a cutil_file_lock_t structure to the unlocked state.
+ *
+ * \param lock Pointer to the lock structure to initialize.
  */
 void cutil_file_lock_init(cutil_file_lock_t *lock);
 
@@ -216,11 +234,18 @@ int cutil_file_lock_try_acquire(cutil_file_lock_t *lock, const char *path);
 
 /**
  * \brief Releases a held OS file lock and closes its handle without unlinking the lock file.
+ *
+ * Safe to call on an already-unlocked or NULL lock pointer.
+ *
+ * \param lock Pointer to the lock structure to release.
  */
 void cutil_file_lock_release(cutil_file_lock_t *lock);
 
 /**
- * \brief Returns true if the lock handle currently holds an active lock.
+ * \brief Checks whether the lock handle currently holds an active lock.
+ *
+ * \param lock Pointer to the lock structure to inspect.
+ * \return true if the lock is currently held, false otherwise (including when lock is NULL).
  */
 bool cutil_file_lock_is_held(const cutil_file_lock_t *lock);
 

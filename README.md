@@ -13,7 +13,7 @@ Online documentation and API reference: **[c-util.readthedocs.io](https://c-util
 
 * **Command Line Parsing**: Lightweight callback-driven command line option parser supporting short options, long options, and positional arguments.
 * **Stream & File Reading**: Chunk-based file reader with cross-platform CRLF-to-LF line ending normalization.
-* **Filesystem & Path Utilities**: Cross-platform path concatenation and directory checking.
+* **Filesystem & Path Utilities**: Cross-platform path manipulation, recursive directory creation and iteration, binary/regular file I/O, atomic file replacement, timestamp updates, fsync, and non-blocking OS file locks.
 * **Binary Serialization / Packing**: Big-endian and little-endian integer packing and unpacking routines with optional platform byte-order hardware acceleration.
 * **Cryptography**: Public domain NIST SHA-256 calculation implementation.
 * **Memory Allocation**: Efficient Small Object Allocator (SOA) based on Andrei Alexandrescu's design.
@@ -25,7 +25,7 @@ Online documentation and API reference: **[c-util.readthedocs.io](https://c-util
 |-----------|--------|----------|-------------|
 | `argparse` | `argparse.h` | First Party | Callback-driven command line argument parser |
 | `filestream` | `filestream.h` | First Party | Stream file reader with CRLF normalization |
-| `fileutil` | `fileutil.h` | First Party | Cross-platform directory detection and path join |
+| `fileutil` | `fileutil.h` | First Party | Cross-platform path, directory, atomic file I/O, and OS file locking utilities |
 | `pack` | `pack.h` | First Party | 32-bit and 64-bit integer serialization/deserialization |
 | `soa` | `soa.h` | First Party | Small object allocator with fixed-size pools |
 | `sha256` | `sha256.h` | Third Party | Public domain SHA-256 hash calculation |

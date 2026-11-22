@@ -38,7 +38,7 @@ Below is a summary of all modules provided by the CUTIL library:
      - Chunk-based file streaming reader with cross-platform CRLF normalization
    * - :doc:`fileutil`
      - ``fileutil.h``
-     - Cross-platform filesystem and path utilities (directory detection, path joining)
+     - Cross-platform filesystem, path, directory iteration, atomic file I/O, and OS file locking utilities
    * - :doc:`pack`
      - ``pack.h``
      - Big-endian and little-endian binary serialization and deserialization routines
