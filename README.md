@@ -59,18 +59,13 @@ cd cutil
 
 ```bash
 # Run unit tests
-cmake --preset clang-test
-cmake --build --preset clang-test
-ctest --preset clang-test
+cmake --preset clang-test && cmake --build --preset clang-test && ctest --preset clang-test
 
 # Address and Undefined Behavior Sanitizers (ASan + UBSan)
-cmake --preset clang-asan
-cmake --build --preset clang-asan
-ctest --preset clang-asan
+cmake --preset clang-asan && cmake --build --preset clang-asan && ctest --preset clang-asan
 
 # Static Analysis
-cmake --preset clang-tidy
-cmake --build --preset clang-tidy
+cmake --preset clang-tidy && cmake --build --preset clang-tidy
 ```
 
 ### Manual CMake Workflows (Linux and Windows)
