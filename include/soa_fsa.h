@@ -1,13 +1,13 @@
 /*****************************************************************************
-* \file      soa_fsa.h
-* \author    Conny Gustafsson
-* \date      2011-08-20
-* \brief     Fixed-size block allocator
-*
-* Copyright (c) 2011-2026 Conny Gustafsson
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      soa_fsa.h
+ * \author    Conny Gustafsson
+ * \date      2011-08-20
+ * \brief     Fixed-size block allocator
+ *
+ * Copyright (c) 2011-2026 Conny Gustafsson
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef CUTIL_SOA_FSA_H_
 #define CUTIL_SOA_FSA_H_
 
@@ -17,7 +17,8 @@
 #include "soa_chunk.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,12 +26,12 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////////
 typedef struct cutil_soa_fsa_tag
 {
-   size_t block_size;
-   unsigned char num_blocks;
-   cutil_soa_chunk_t *chunks;
-   cutil_soa_chunk_t *alloc_chunk;
-   cutil_soa_chunk_t *dealloc_chunk;
-   size_t chunks_len;
+  size_t block_size;
+  unsigned char num_blocks;
+  cutil_soa_chunk_t *chunks;
+  cutil_soa_chunk_t *alloc_chunk;
+  cutil_soa_chunk_t *dealloc_chunk;
+  size_t chunks_len;
 } cutil_soa_fsa_t;
 
 // Compatibility alias

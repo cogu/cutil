@@ -1,13 +1,13 @@
 /*****************************************************************************
-* \file      soa_chunk.h
-* \author    Conny Gustafsson
-* \date      2011-08-20
-* \brief     Chunk allocator for small objects
-*
-* Copyright (c) 2011-2026 Conny Gustafsson
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      soa_chunk.h
+ * \author    Conny Gustafsson
+ * \date      2011-08-20
+ * \brief     Chunk allocator for small objects
+ *
+ * Copyright (c) 2011-2026 Conny Gustafsson
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef CUTIL_SOA_CHUNK_H_
 #define CUTIL_SOA_CHUNK_H_
 
@@ -17,7 +17,8 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,9 +26,9 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////////
 typedef struct cutil_soa_chunk_tag
 {
-   unsigned char *block_data;
-   unsigned char first_block;
-   unsigned char free_blocks;
+  unsigned char *block_data;
+  unsigned char first_block;
+  unsigned char free_blocks;
 } cutil_soa_chunk_t;
 
 // Compatibility alias

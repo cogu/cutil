@@ -1,39 +1,42 @@
 /*****************************************************************************
-* \file      filestream.h
-* \author    Conny Gustafsson
-* \date      2015-02-14
-* \brief     File stream reader
-*
-* Copyright (c) 2015-2026 Conny Gustafsson
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      filestream.h
+ * \author    Conny Gustafsson
+ * \date      2015-02-14
+ * \brief     File stream reader
+ *
+ * Copyright (c) 2015-2026 Conny Gustafsson
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef CUTIL_FILESTREAM_H_
 #define CUTIL_FILESTREAM_H_
 
 //////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 //////////////////////////////////////////////////////////////////////////////
+#include "adt_bytearray.h"
 #include <stdint.h>
 #include <stdio.h>
-#include "adt_bytearray.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PUBLIC CONSTANTS AND DATA TYPES
 //////////////////////////////////////////////////////////////////////////////
-typedef struct cutil_ifstream_handler_tag {
-   void *arg;
-   void (*open)(void *arg);
-   void (*close)(void *arg);
-   void (*write)(void *arg, const uint8_t *chunk, uint32_t chunk_len);
+typedef struct cutil_ifstream_handler_tag
+{
+  void *arg;
+  void (*open)(void *arg);
+  void (*close)(void *arg);
+  void (*write)(void *arg, const uint8_t *chunk, uint32_t chunk_len);
 } cutil_ifstream_handler_t;
 
-typedef struct cutil_ifstream_tag {
-   cutil_ifstream_handler_t handler;
+typedef struct cutil_ifstream_tag
+{
+  cutil_ifstream_handler_t handler;
 } cutil_ifstream_t;
 
 // Compatibility aliases

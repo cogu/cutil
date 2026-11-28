@@ -1,13 +1,13 @@
 /*****************************************************************************
-* \file      soa.h
-* \author    Conny Gustafsson
-* \date      2011-08-20
-* \brief     Small Object Allocator (An adaptation from "Modern C++ Design", chapter 4)
-*
-* Copyright (c) 2011-2026 Conny Gustafsson
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      soa.h
+ * \author    Conny Gustafsson
+ * \date      2011-08-20
+ * \brief     Small Object Allocator (An adaptation from "Modern C++ Design", chapter 4)
+ *
+ * Copyright (c) 2011-2026 Conny Gustafsson
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef CUTIL_SOA_H_
 #define CUTIL_SOA_H_
 
@@ -17,7 +17,8 @@
 #include "soa_fsa.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,7 +29,7 @@ extern "C" {
 
 typedef struct cutil_soa_tag
 {
-   cutil_soa_fsa_t *fsa[SOA_SMALL_OBJECT_MAX_SIZE];
+  cutil_soa_fsa_t *fsa[SOA_SMALL_OBJECT_MAX_SIZE];
 } cutil_soa_t;
 
 // Compatibility alias

@@ -1,13 +1,13 @@
 /*****************************************************************************
-* \file      <filename>
-* \author    <author>
-* \date      <date>
-* \brief     <brief description>
-*
-* Copyright (c) <years> <author>
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      <filename>
+ * \author    <author>
+ * \date      <date>
+ * \brief     <brief description>
+ *
+ * Copyright (c) <years> <author>
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 //////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 //////////////////////////////////////////////////////////////////////////////

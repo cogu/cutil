@@ -1,24 +1,25 @@
 /*****************************************************************************
-* \file      argparse.h
-* \author    Conny Gustafsson
-* \date      2020-04-10
-* \brief     Platform-independent argument parser
-*
-* Copyright (c) 2020-2026 Conny Gustafsson
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      argparse.h
+ * \author    Conny Gustafsson
+ * \date      2020-04-10
+ * \brief     Platform-independent argument parser
+ *
+ * Copyright (c) 2020-2026 Conny Gustafsson
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef CUTIL_ARGPARSE_H_
 #define CUTIL_ARGPARSE_H_
 
 //////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 //////////////////////////////////////////////////////////////////////////////
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,13 +27,13 @@ extern "C" {
 //////////////////////////////////////////////////////////////////////////////
 typedef enum argparse_action_tag
 {
-   ARGPARSE_INVALID_ARGUMENT_ERROR  = -5,
-   ARGPARSE_PARSE_ERROR             = -4,
-   ARGPARSE_MEM_ERROR               = -3,
-   ARGPARSE_VALUE_ERROR             = -2,
-   ARGPARSE_NAME_ERROR              = -1,
-   ARGPARSE_SUCCESS                 =  0,
-   ARGPARSE_NEED_VALUE              =  1
+  ARGPARSE_INVALID_ARGUMENT_ERROR = -5,
+  ARGPARSE_PARSE_ERROR = -4,
+  ARGPARSE_MEM_ERROR = -3,
+  ARGPARSE_VALUE_ERROR = -2,
+  ARGPARSE_NAME_ERROR = -1,
+  ARGPARSE_SUCCESS = 0,
+  ARGPARSE_NEED_VALUE = 1
 } argparse_result_t;
 
 typedef argparse_result_t cutil_argparse_result_t;
@@ -76,13 +77,15 @@ typedef argparse_result_t cutil_argparse_result_t;
  * 2a. When an argument contains a name, an equal sign and text after the equal sign the callback function
  *     will be called with both name and value set (the first time the name is encountered).
  * 3. short_name and long_name are always mutually exclusive (they cannot be non-null simultaneously).
- * 4. If a name is encountered and a value is expected (to come next) the callback function shall return ARGPARSE_NEED_VALUE.
+ * 4. If a name is encountered and a value is expected (to come next) the callback function shall return
+ * ARGPARSE_NEED_VALUE.
  * 5. If a name is encountered and no value is expected the callback function shall return ARGPARSE_SUCCESS.
  * 5.1. After a callback returns ARGPARSE_NEED_VALUE the callback will be called again with both name and value.
  * 5.2. This means that the callback does not need to "store" or "remember" the name when returning ARGPARSE_NEED_VALUE.
- * 6. Any error code returned by the callback will be returned as a result back to the caller of the argparse_exec function.
+ * 6. Any error code returned by the callback will be returned as a result back to the caller of the argparse_exec
+ * function.
  */
-typedef argparse_result_t (argparse_callback_fn)(const char *short_name, const char *long_name, const char *value);
+typedef argparse_result_t(argparse_callback_fn)(const char *short_name, const char *long_name, const char *value);
 typedef argparse_callback_fn cutil_argparse_callback_fn;
 
 //////////////////////////////////////////////////////////////////////////////

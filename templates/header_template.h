@@ -1,13 +1,13 @@
 /*****************************************************************************
-* \file      <filename>
-* \author    <author>
-* \date      <date>
-* \brief     <brief description>
-*
-* Copyright (c) <years> <author>
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      <filename>
+ * \author    <author>
+ * \date      <date>
+ * \brief     <brief description>
+ *
+ * Copyright (c) <years> <author>
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef FILENAME_H_
 #define FILENAME_H_
 
@@ -16,7 +16,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////

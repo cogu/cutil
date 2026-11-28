@@ -1,27 +1,28 @@
 /*****************************************************************************
-* \file      fileutil.h
-* \author    Conny Gustafsson
-* \date      2026-09-07
-* \brief     Cross-platform file and path utilities
-*
-* Copyright (c) 2026 Conny Gustafsson
-* SPDX-License-Identifier: MIT
-* See LICENSE in project root for full license terms.
-******************************************************************************/
+ * \file      fileutil.h
+ * \author    Conny Gustafsson
+ * \date      2026-09-07
+ * \brief     Cross-platform file and path utilities
+ *
+ * Copyright (c) 2026 Conny Gustafsson
+ * SPDX-License-Identifier: MIT
+ * See LICENSE in project root for full license terms.
+ ******************************************************************************/
 #ifndef CUTIL_FILEUTIL_H_
 #define CUTIL_FILEUTIL_H_
 
 //////////////////////////////////////////////////////////////////////////////
 // INCLUDES
 //////////////////////////////////////////////////////////////////////////////
+#include "adt_str.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "adt_str.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -32,12 +33,12 @@ extern "C" {
  */
 typedef struct cutil_dir_entry_tag
 {
-   const char *name;  /**< Entry name relative to the iterated directory (null-terminated). */
-   uint64_t size;     /**< File size in bytes (0 for non-regular entries where unavailable). */
-   int64_t mtime_sec; /**< Last modification time in Unix epoch seconds. */
-   bool is_reg;       /**< True if the entry is a regular file. */
-   bool is_dir;       /**< True if the entry is a directory. */
-   bool is_symlink;   /**< True if the entry is a symbolic link (POSIX) or reparse point (Windows). */
+  const char *name;  /**< Entry name relative to the iterated directory (null-terminated). */
+  uint64_t size;     /**< File size in bytes (0 for non-regular entries where unavailable). */
+  int64_t mtime_sec; /**< Last modification time in Unix epoch seconds. */
+  bool is_reg;       /**< True if the entry is a regular file. */
+  bool is_dir;       /**< True if the entry is a directory. */
+  bool is_symlink;   /**< True if the entry is a symbolic link (POSIX) or reparse point (Windows). */
 } cutil_dir_entry_t;
 
 /**
@@ -47,7 +48,7 @@ typedef struct cutil_dir_entry_tag
  * \param entry Metadata for the current directory entry.
  * \return true to continue iterating, false to stop early.
  */
-typedef bool (cutil_dir_entry_cb)(void *arg, const cutil_dir_entry_t *entry);
+typedef bool(cutil_dir_entry_cb)(void *arg, const cutil_dir_entry_t *entry);
 
 /**
  * \brief Cross-platform exclusive OS file lock handle.
@@ -58,11 +59,11 @@ typedef bool (cutil_dir_entry_cb)(void *arg, const cutil_dir_entry_t *entry);
 typedef struct cutil_file_lock_tag
 {
 #ifdef _WIN32
-   void *handle; /**< Windows file handle (INVALID_HANDLE_VALUE when unlocked). */
+  void *handle; /**< Windows file handle (INVALID_HANDLE_VALUE when unlocked). */
 #else
-   int fd;       /**< POSIX file descriptor (-1 when unlocked). */
+  int fd;       /**< POSIX file descriptor (-1 when unlocked). */
 #endif
-   bool locked;  /**< True while an exclusive OS lock is actively held. */
+  bool locked;  /**< True while an exclusive OS lock is actively held. */
 } cutil_file_lock_t;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,7 +175,7 @@ int cutil_dir_for_each(const char *dir_path, cutil_dir_entry_cb cb, void *arg);
  *         -1 on open, symlink, non-regular file, or I/O error (preserving errno).
  */
 int cutil_read_regular_file(
-   const char *path, uint8_t *buf, size_t expected_size, size_t *out_actual_size, int64_t *out_mtime_sec);
+  const char *path, uint8_t *buf, size_t expected_size, size_t *out_actual_size, int64_t *out_mtime_sec);
 
 /**
  * \brief Atomically replaces dst_path with src_path (must reside on the same filesystem).

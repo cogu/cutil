@@ -1,0 +1,12 @@
+# Third-party components
+cutest/CuTest.c
+cutest/CuTest.h
+include/CMemLeak.h
+src/CMemLeak.c
+include/sha256.h
+src/sha256.c
+
+# Build directories
+build/**
+build-*/**
+docs/_build/**
