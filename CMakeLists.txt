@@ -147,10 +147,6 @@ if (UNIT_TEST)
     target_compile_definitions(cutil PRIVATE UNIT_TEST)
 endif()
 
-if (LEAK_CHECK)
-    target_compile_definitions(cutil PRIVATE MEM_LEAK_CHECK)
-endif()
-
 ###
 
 ### Executable cutil_unit
@@ -175,10 +171,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
                                   "${CMAKE_CURRENT_SOURCE_DIR}/test"
                                   )
         target_compile_definitions(cutil_unit PRIVATE UNIT_TEST)
-
-        if (LEAK_CHECK)
-            target_compile_definitions(cutil_unit PRIVATE MEM_LEAK_CHECK)
-        endif()
 
         enable_testing()
         add_test(NAME cutil_unit COMMAND cutil_unit)

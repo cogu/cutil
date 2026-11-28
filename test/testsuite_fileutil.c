@@ -27,9 +27,6 @@
 #include "CuTest.h"
 #include "adt_str.h"
 #include "fileutil.h"
-#ifdef MEM_LEAK_CHECK
-# include "CMemLeak.h"
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTION PROTOTYPES

@@ -14,9 +14,6 @@
 #include "soa_fsa.h"
 #include <assert.h>
 #include <stdlib.h>
-#ifdef MEM_LEAK_CHECK
-# include "CMemLeak.h"
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE CONSTANTS AND DATA TYPES

@@ -17,9 +17,6 @@
 #include "sha256.h"
 #include <stdio.h>
 #include <string.h>
-#ifdef MEM_LEAK_CHECK
-# include "CMemLeak.h"
-#endif
 
 
 //////////////////////////////////////////////////////////////////////////////

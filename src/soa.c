@@ -15,9 +15,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef MEM_LEAK_CHECK
-# include "CMemLeak.h"
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE CONSTANTS AND DATA TYPES

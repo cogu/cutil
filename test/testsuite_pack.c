@@ -21,9 +21,6 @@
 #ifdef USE_PLATFORM_TYPES
 # include "Platform_Types.h"
 #endif
-#ifdef MEM_LEAK_CHECK
-# include "CMemLeak.h"
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PRIVATE CONSTANTS AND DATA TYPES
