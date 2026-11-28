@@ -4,6 +4,7 @@ CMemLeak.txt
 /VisualStudio/
 build/
 build-*/
+.vscode/
 language.settings.xml
 
 # Sphinx documentation
