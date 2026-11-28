@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.28)
 
 project(cutil LANGUAGES C VERSION 1.3.3)
 
@@ -30,8 +30,30 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     option(UNIT_TEST "Unit Test Build" OFF)
     option(LEAK_CHECK "Memory Leak Detection" OFF)
     option(CUTIL_BUILD_EXAMPLE "Build Example Application" OFF)
+    option(CUTIL_ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
 endif()
 include(CMakeDependentOption)
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND CUTIL_ENABLE_CLANG_TIDY AND NOT CMAKE_C_CLANG_TIDY)
+    set(_cutil_tidy_candidates)
+    if(CUTIL_CLANG_VERSION)
+        list(APPEND _cutil_tidy_candidates "clang-tidy-${CUTIL_CLANG_VERSION}")
+    else()
+        if(CMAKE_C_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_VERSION MATCHES "^([0-9]+)")
+            list(APPEND _cutil_tidy_candidates "clang-tidy-${CMAKE_MATCH_1}")
+        endif()
+        list(APPEND _cutil_tidy_candidates clang-tidy-22 clang-tidy-21 clang-tidy)
+        list(REMOVE_DUPLICATES _cutil_tidy_candidates)
+    endif()
+
+    find_program(CUTIL_CLANG_TIDY_EXECUTABLE NAMES ${_cutil_tidy_candidates})
+    if(NOT CUTIL_CLANG_TIDY_EXECUTABLE)
+        message(FATAL_ERROR "CUTIL_ENABLE_CLANG_TIDY is ON, but no matching clang-tidy executable was found (searched: ${_cutil_tidy_candidates}).")
+    endif()
+
+    message(STATUS "Using clang-tidy: ${CUTIL_CLANG_TIDY_EXECUTABLE}")
+    set(CMAKE_C_CLANG_TIDY "${CUTIL_CLANG_TIDY_EXECUTABLE}")
+endif()
 
 set(CUTIL_SANITIZERS "" CACHE STRING "Comma-separated sanitizers to enable (for example: address,undefined or thread)")
 set_property(CACHE CUTIL_SANITIZERS PROPERTY STRINGS "" "address" "address,undefined" "thread")

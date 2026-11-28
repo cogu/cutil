@@ -55,11 +55,16 @@ cd cutil
 
 ## Building with CMake
 
-### Using CMake Presets (Clang 18 + Ninja)
+### Using CMake Presets (Clang + Ninja)
+
+The presets use `cmake/clang-toolchain.cmake` to auto-detect Clang (`clang-22`, `clang-21`, or `clang`) and the matching `clang-tidy` version. Pass `-DCUTIL_CLANG_VERSION=21` (or `22`) to pin a specific major version.
 
 ```bash
 # Run unit tests
 cmake --preset clang-test && cmake --build --preset clang-test && ctest --preset clang-test
+
+# Pin a specific Clang version (for example: Clang 21)
+cmake --preset clang-test -DCUTIL_CLANG_VERSION=21
 
 # Address and Undefined Behavior Sanitizers (ASan + UBSan)
 cmake --preset clang-asan && cmake --build --preset clang-asan && ctest --preset clang-asan
@@ -100,6 +105,8 @@ ctest --test-dir build-test --output-on-failure
 | `LEAK_CHECK` | `-DLEAK_CHECK=ON` | `OFF` | Enables memory leak detection via CMemLeak |
 | `CUTIL_BUILD_EXAMPLE` | `-DCUTIL_BUILD_EXAMPLE=ON` | `OFF` | Enables building example runner executable (`cutil_example`) |
 | `CUTIL_SANITIZERS` | `-DCUTIL_SANITIZERS="address,undefined"` | `""` | Enables compiler sanitizers (GCC / Clang) |
+| `CUTIL_CLANG_VERSION` | `-DCUTIL_CLANG_VERSION=21` | `""` | Pin Clang/clang-tidy major version (toolchain) |
+| `CUTIL_ENABLE_CLANG_TIDY` | `-DCUTIL_ENABLE_CLANG_TIDY=ON` | `OFF` | Enables clang-tidy static analysis |
 | `BYTE_ORDER` | `-DBYTE_ORDER=[AUTO\|NONE\|LITTLE\|BIG]` | `AUTO` | Platform endianness for pack optimizations |
 | `ENABLE_MSVC_ANALYZE` | `-DENABLE_MSVC_ANALYZE=ON` | `OFF` | Enables MSVC static code analysis (`/analyze`) |
 

@@ -22,13 +22,18 @@ jobs:
             cxx: clang++
           - name: MSVC
             os: windows-latest
+            cc: cl
+            cxx: cl
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
 
     steps:
     - name: checkout adt
       uses: actions/checkout@v4
       with:
         repository: cogu/adt
-        ref: v0.3.7
+        ref: v0.3.10
         path: adt
 
     - name: checkout cutil
@@ -36,16 +41,7 @@ jobs:
       with:
         path: main
 
-    - name: configure (Linux)
-      if: runner.os != 'Windows'
-      run: cmake -S . -B build -DUNIT_TEST=ON
-      working-directory: main
-      env:
-        CC: ${{ matrix.cc }}
-        CXX: ${{ matrix.cxx }}
-
-    - name: configure (Windows)
-      if: runner.os == 'Windows'
+    - name: configure
       run: cmake -S . -B build -DUNIT_TEST=ON
       working-directory: main
 
